@@ -2,12 +2,13 @@ package logika;
 
 import java.util.LinkedList;
 import java.util.List;
+import splosno.Koordinati;
 
 public class Igra {
 	
 	public int N;
 	
-	private Polje[][] plosca;
+	public Polje[][] plosca;
 	
 	public Igralec naPotezi;
 	
@@ -15,7 +16,7 @@ public class Igra {
 	
 	public Koordinati predzadnjaPoteza;
 	
-	private static List<Vrsta> VRSTE;
+	public static List<Vrsta> VRSTE;
 	
 	protected Stanje stanje = null;
 
@@ -57,6 +58,36 @@ public class Igra {
 		zmagovalneVrste(N);
 	}
 	
+	public Igra() {
+		VRSTE = new LinkedList<Vrsta>();
+		predzadnjaPoteza = null;
+		zadnjaPoteza = null;
+		this.N = 15;
+		plosca = new Polje[N][N];
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				plosca[i][j] = Polje.PRAZNO;
+			}
+		}
+		naPotezi = Igralec.B;
+		zmagovalneVrste(N);
+	}
+	
+	public Igra(Igra igra) {
+		predzadnjaPoteza = null;
+		zadnjaPoteza = null;
+		this.N = igra.N;
+		
+		this.plosca = new Polje[N][N];
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				this.plosca[i][j] = igra.plosca[i][j];
+			}
+		}
+		
+		this.naPotezi = igra.naPotezi;
+	}
+	
 	public Polje[][] getPlosca () {
 		return plosca;
 	}
@@ -72,6 +103,29 @@ public class Igra {
 		}
 		return ps;
 	}
+	
+	public List<Koordinati> poteze_omejeno(){
+		LinkedList<Koordinati> ps = new LinkedList<Koordinati>();
+		
+		int[][] smer = {{1,0}, {0,1}, {1,1}, {1,-1}, {-1,0}, {0,-1}, {-1,-1}, {-1,1}};
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				if (plosca[i][j] == Polje.PRAZNO) {
+					for (int[] s : smer) {
+						int dx = s[0];
+						int dy = s[1];
+						if (dx + i > N-1 || dx + i < 0) dx = 0;
+						if (dy + j > N-1 || dy + j < 0) dy = 0;
+						
+						if (plosca[i + dx][j + dy] != Polje.PRAZNO) {ps.add(new Koordinati(i, j));break;}
+					}
+				}
+			}
+		}
+		if (ps.size() == 0) {ps.add(new Koordinati(N/2,N/2));}
+		return ps;
+	}
+	
 	
 	public boolean odigraj(Koordinati p) {
 		if (plosca[p.getX()][p.getY()] == Polje.PRAZNO) {

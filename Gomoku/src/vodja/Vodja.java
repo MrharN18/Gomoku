@@ -8,9 +8,10 @@ import javax.swing.SwingWorker;
 import java.util.concurrent.TimeUnit;
 
 import gui.Okno;
+import inteligenca.Inteligenca;
 import logika.Igra;
 import logika.Igralec;
-import logika.Koordinati;
+import splosno.Koordinati;
 
 public class Vodja {	
 	
@@ -59,15 +60,40 @@ public class Vodja {
 //		igramo ();
 //	}
 	
+//	public static void igrajRacunalnikovoPotezo() {
+//		Igra zacetkaIgra = igra;
+//		SwingWorker<Koordinati, Void> worker = new SwingWorker<Koordinati, Void> () {
+//			@Override
+//			protected Koordinati doInBackground() {
+//				try {TimeUnit.SECONDS.sleep(1);} catch (Exception e) {};
+//				List<Koordinati> moznePoteze = igra.poteze();
+//				int randomIndex = random.nextInt(moznePoteze.size());
+//				return moznePoteze.get(randomIndex);
+//			}
+//			@Override
+//			protected void done () {
+//				Koordinati poteza = null;
+//				try {poteza = get();} catch (Exception e) {};
+//				if (igra == zacetkaIgra) {
+//					igra.odigraj(poteza);
+//					igramo ();
+//				}
+//			}
+//		};
+//		worker.execute();
+//	}
+	
+	
+	public static Inteligenca racunalnikovaInteligenca = new Inteligenca("nevem");
+	
 	public static void igrajRacunalnikovoPotezo() {
 		Igra zacetkaIgra = igra;
 		SwingWorker<Koordinati, Void> worker = new SwingWorker<Koordinati, Void> () {
 			@Override
 			protected Koordinati doInBackground() {
+				Koordinati poteza = racunalnikovaInteligenca.izberiPotezo(igra);
 				try {TimeUnit.SECONDS.sleep(1);} catch (Exception e) {};
-				List<Koordinati> moznePoteze = igra.poteze();
-				int randomIndex = random.nextInt(moznePoteze.size());
-				return moznePoteze.get(randomIndex);
+				return poteza;
 			}
 			@Override
 			protected void done () {

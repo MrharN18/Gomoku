@@ -15,7 +15,7 @@ import vodja.Vodja;
 //import logika.Igra;
 import logika.Polje;
 import logika.Vrsta;
-import logika.Koordinati;
+import splosno.Koordinati;
 
 
 @SuppressWarnings("serial")
@@ -49,7 +49,7 @@ public class Platno extends JPanel implements MouseListener{
 	}
 	
 	// Relativni prostor okoli X in O
-	private final static double PADDING = 0.18;
+	private final static double PADDING = 0.12;
 		
 	private void paintB(Graphics2D g2, int i, int j) {
 		double w = squareWidth();
@@ -81,6 +81,8 @@ public class Platno extends JPanel implements MouseListener{
 		g2.setColor(barvaW);
 		g2.setStroke(new BasicStroke((float) (w * LINE_WIDTH)));
 		g2.fillOval((int)x, (int)y, (int)d , (int)d);
+		g2.setColor(barvaB);
+		g2.drawOval((int)x, (int)y, (int)d , (int)d);
 	}
 	
 	@Override
