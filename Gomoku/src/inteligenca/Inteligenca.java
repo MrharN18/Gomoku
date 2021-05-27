@@ -1,5 +1,6 @@
 package inteligenca;
 
+
 import java.util.List;
 import logika.Igra;
 import logika.Igralec;
@@ -9,7 +10,8 @@ import splosno.KdoIgra;
 
 public class Inteligenca extends KdoIgra {
 	
-	private static final int ZMAGA = 1000000000; // vrednost zmage
+	public static int evaluationCount = 0;
+	private static final int ZMAGA = 1000000; // vrednost zmage
 	private static final int ZGUBA = -ZMAGA;  // vrednost izgube
 	private static final int NEODLOC = 0;  // vrednost neodločene igre	
 	
@@ -22,22 +24,32 @@ public class Inteligenca extends KdoIgra {
 	
 	
 	public Koordinati izberiPotezo (Igra igra) {
+		
+		long startTime = System.currentTimeMillis();
+		
 		Koordinati r = poisciZmago(igra);
 		if (r != null) return r;
 		
 		Koordinati q = poisciPoraz(igra);
 		if (q != null) return q;
 		
-		return alphabetaPoteze(igra, this.globina, ZGUBA, ZMAGA, igra.naPotezi, 0).poteza;
+		Koordinati poteza = alphabeta(igra, this.globina, ZGUBA, ZMAGA, igra.naPotezi, 0).poteza;
+		
+		
+		
+		System.out.println("Cases calculated: " + evaluationCount + " Calculation time: " + (System.currentTimeMillis() - startTime) + " ms");
+		
+		return poteza;
 	}
+			
 	
-	
-	public static OcenjenaPoteza alphabetaPoteze(Igra igra, int globina, int alpha, int beta, Igralec jaz, int zavlacuj) {
+	public static OcenjenaPoteza alphabeta(Igra igra, int globina, int alpha, int beta, Igralec jaz, int zavlacuj) {
 		int ocena;
 		// Če sem računalnik, maksimiramo oceno z začetno oceno ZGUBA
 		// Če sem pa človek, minimiziramo oceno z začetno oceno ZMAGA
 		if (igra.naPotezi == jaz) {ocena = ZGUBA;} else {ocena = ZMAGA;}
 		List<Koordinati> moznePoteze = igra.poteze_omejeno();
+//		System.out.println(moznePoteze.size());
 		Koordinati kandidat = moznePoteze.get(0); // Možno je, da se ne spremini vrednost kanditata. Zato ne more biti null.
 			
 		for (Koordinati p: moznePoteze) {
@@ -51,7 +63,7 @@ public class Inteligenca extends KdoIgra {
 			default:
 				// Nekdo je na potezi
 				if (globina == 1) ocenap = OceniPozicijo.oceniPozicijo(kopijaIgre, jaz);
-				else ocenap = alphabetaPoteze (kopijaIgre, globina-1, alpha, beta, jaz, zavlacuj + 1).ocena;
+				else ocenap = alphabeta (kopijaIgre, globina-1, alpha, beta, jaz, zavlacuj + 1).ocena;
 			}
 			if (igra.naPotezi == jaz) { // Maksimiramo oceno
 				if (ocenap > ocena) { // mora biti > namesto >=
@@ -89,6 +101,5 @@ public class Inteligenca extends KdoIgra {
 		Koordinati p = poisciZmago(kopijaIgre);
 		return p;
 	}
-	
 }
 
