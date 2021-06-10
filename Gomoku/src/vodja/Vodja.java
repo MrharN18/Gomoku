@@ -1,9 +1,8 @@
+// import paketov
 package vodja;
 
 import java.util.Map;
-import java.awt.Color;
 import java.util.EnumMap;
-import java.util.List;
 
 import javax.swing.SwingWorker;
 import java.util.concurrent.TimeUnit;
@@ -16,24 +15,32 @@ import splosno.Koordinati;
 
 public class Vodja {	
 	
+	// za vsakega igralca naredi slovar tipa tega igralca
 	public static Map<Igralec,VrstaIgralca> vrstaIgralca;
 	
+	// okno
 	public static Okno okno;
 	
+	// igra 
 	public static Igra igra = null;
 	
 	public static boolean clovekNaVrsti = false;
 	
+	// za vsakega igralca slovar imen igralcev
 	public static EnumMap<Igralec, String> igralecName;
+	
+	// za vsakega igralca algoritem (če je ta igralec računalnik)
 	public static EnumMap<Igralec, String> aiAlgorithm;
 	
+	// default globina, in zamik, takoj ko odpremo program
 	public static int globina_B = 3;
-    public static int globina_W = 3;
-    public static int mcts_time_ms = 1000;
-    public static boolean zamik = false;
+    	public static int globina_W = 3;
+    	public static int mcts_time_ms = 1000;
+   	public static boolean zamik = false;
 	
+	// default imena igralcev in algoritmov
 	static {
-		igralecName = new EnumMap<Igralec, String>(Igralec.class);
+	igralecName = new EnumMap<Igralec, String>(Igralec.class);
         igralecName.put(Igralec.B, "Igralec B");
         igralecName.put(Igralec.W, "Igralec W");
 
@@ -41,13 +48,15 @@ public class Vodja {
         aiAlgorithm.put(Igralec.B, "AlfaBeta");
         aiAlgorithm.put(Igralec.W, "AlfaBeta");
 	}
-
-		
+	
+	
+	// ustvari novo igro, glede na izbrano velikost v polju
 	public static void igramoNovoIgro () {
 		igra = new Igra(okno.polje.N);
 		igramo();
 	}
 	
+	// funkcija, ki skrbi da igra poteka nemoteno
 	public static void igramo () {
 		okno.osveziGUI();
 		switch (igra.stanje()) {
@@ -69,16 +78,19 @@ public class Vodja {
 		}
 	}
 	
+	// swingworker skrbi za delovanje v ozadju
 	private static SwingWorker<Koordinati, Void> worker = null;
 	
 	public static Inteligenca racunalnikovaInteligenca = new Inteligenca("nevem");
-		
+	
+	// na vrsti je računalnik
 	public static void igrajRacunalnikovoPotezo() {
 			Igra zacetkaIgra = igra;
 						
 			worker = new SwingWorker<Koordinati, Void>() {
 				@Override
 				protected Koordinati doInBackground() {
+					// v ozadju zažene izbrani algoritem izbrane globine, ki potem najde najboljšo potezo
 					Koordinati poteza = null;
 					switch (igra.naPotezi) {
 					case B: {poteza = racunalnikovaInteligenca.izberiPotezo(igra,aiAlgorithm.get(zacetkaIgra.naPotezi), globina_B, zamik, mcts_time_ms); break;}
@@ -89,6 +101,7 @@ public class Vodja {
 				}
 				@Override
 				protected void done() {
+					// ko algoritem konča, potezo vrne, če ga ne prekemo vmes (s tipko razveljavi)
 					Koordinati poteza = null;
 					try {poteza = get();} catch (Exception e) {
 						e.printStackTrace();
@@ -102,7 +115,8 @@ public class Vodja {
 			};
 			worker.execute();
 		}
-		
+	
+	// na vrsti je človek
 	public static void igrajClovekovoPotezo(Koordinati poteza) {
 		if (igra.odigraj(poteza)) clovekNaVrsti = false;
 		igramo ();
