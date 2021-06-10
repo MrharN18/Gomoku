@@ -1,5 +1,5 @@
+// uvoz paketov
 package inteligenca;
-
 
 import java.util.List;
 import java.util.Random;
@@ -12,7 +12,6 @@ import splosno.KdoIgra;
 
 public class Inteligenca extends KdoIgra {
 	
-	public static int evaluationCount = 0;
 	private static final int ZMAGA = 1000000; // vrednost zmage
 	private static final int ZGUBA = -ZMAGA;  // vrednost izgube
 	private static final int NEODLOC = 0;  // vrednost neodločene igre	
@@ -20,68 +19,43 @@ public class Inteligenca extends KdoIgra {
 	
 	private static Random random = new Random ();
 	
-	public static Koordinati trenutnoNajboljsa;
-	
 	public Inteligenca (String ime) {
 		super(ime);
 	}
 	
 	
 	public Koordinati izberiPotezo (Igra igra, String algoritem, int globina, boolean zamik, int dolzinaZamika) {
-		if (zamik) {
-			long startTime = System.currentTimeMillis();
-			
-			while (System.currentTimeMillis() - startTime < dolzinaZamika) {
 				
-				
+				// poskuša najti takojšnjo zmago
 				Koordinati r = poisciZmago(igra);
 				if (r != null) return r;
 				
+				// poskuša najti takojšnji poraz, da ga prepreči
 				Koordinati q = poisciPoraz(igra);
 				if (q != null) return q;
 				
+				// pogleda izbran algoritem in igra potezo, ki jo izbere
 				switch (algoritem) {
 				case "Minimax": {
 					List<OcenjenaPoteza> ocenjenePoteze = randomMinimax(igra, globina);
 					Koordinati potezaM = vrniPotezo(ocenjenePoteze); return potezaM;
 				}
-				case "AlfaBeta": {Koordinati potezaA = alphabeta(igra, globina, ZGUBA, ZMAGA, igra.naPotezi, 0).poteza; System.out.println(System.currentTimeMillis() - startTime); return potezaA;}
+				case "AlfaBeta": {Koordinati potezaA = alphabeta(igra, globina, ZGUBA, ZMAGA, igra.naPotezi, 0).poteza; return potezaA;}
 				case "Naiven": Koordinati potezaN = naiven(igra); return potezaN;
 				default: return null;
 				}
-				
-			}
-			return trenutnoNajboljsa;
-			
-		}
 		
-		else {
-			Koordinati r = poisciZmago(igra);
-			if (r != null) return r;
-			
-			Koordinati q = poisciPoraz(igra);
-			if (q != null) return q;
-			
-			switch (algoritem) {
-			case "Minimax": {
-				List<OcenjenaPoteza> ocenjenePoteze = randomMinimax(igra, globina);
-				Koordinati potezaM = vrniPotezo(ocenjenePoteze); return potezaM;
-			}
-			case "AlfaBeta": {Koordinati potezaA = alphabeta(igra, globina, ZGUBA, ZMAGA, igra.naPotezi, 0).poteza; return potezaA;}
-			case "Naiven": Koordinati potezaN = naiven(igra); return potezaN;
-			default: return null;
-			}
-		}
 	}
 			
-	
+	// algoritem alfabeta
 	public static OcenjenaPoteza alphabeta(Igra igra, int globina, int alpha, int beta, Igralec jaz, int zavlacuj) {
 		int ocena;
-		// Če sem računalnik, maksimiramo oceno z začetno oceno ZGUBA
-		// Če sem pa človek, minimiziramo oceno z začetno oceno ZMAGA
+
 		if (igra.naPotezi == jaz) {ocena = ZGUBA;} else {ocena = ZMAGA;}
+		
+		// alfabeta sva izboljšala tako, da poteze išče samo na poljih, ki imajo vsaj enega od sosedov že zapolnjenega. Tako se prihrani dragocen čas.
 		List<Koordinati> moznePoteze = igra.poteze_omejeno();
-//		System.out.println(moznePoteze.size());
+
 		Koordinati kandidat = moznePoteze.get(0); // Možno je, da se ne spremini vrednost kanditata. Zato ne more biti null.
 			
 		for (Koordinati p: moznePoteze) {
@@ -101,14 +75,12 @@ public class Inteligenca extends KdoIgra {
 				if (ocenap > ocena) { // mora biti > namesto >=
 					ocena = ocenap + zavlacuj;
 					kandidat = p;
-					trenutnoNajboljsa = kandidat;
 					alpha = Math.max(alpha,ocena);
 				}
 			} else { // igra.naPotezi() != jaz, torej minimiziramo oceno
 				if (ocenap < ocena) { // mora biti < namesto <=
 					ocena = ocenap - zavlacuj;
 					kandidat = p;
-					trenutnoNajboljsa = kandidat;
 					beta = Math.min(beta, ocena);					
 				}	
 			}
@@ -118,6 +90,8 @@ public class Inteligenca extends KdoIgra {
 		return new OcenjenaPoteza (kandidat, ocena);
 	}
 	
+	
+	// algoritem naiven, ki naključno izbere potezo iz seznama vseh možnih
 	public Koordinati naiven(Igra igra) {
 		List<Koordinati> moznePoteze = igra.poteze();
 		int randomIndex = random.nextInt(moznePoteze.size());
@@ -125,7 +99,7 @@ public class Inteligenca extends KdoIgra {
 	}
 	
 	
-	
+	// algoritem minimax, ki naključno izbere eno izmed najboljših potez in jo odigra
 	public static List<OcenjenaPoteza> randomMinimax(Igra igra, int globina) {
 		NajboljseOcenjenePoteze najboljsePoteze = new NajboljseOcenjenePoteze();
 		List<Koordinati> moznePoteze = igra.poteze();
@@ -142,20 +116,19 @@ public class Inteligenca extends KdoIgra {
 				else ocena = //negacija ocene z vidike dgrugega igralca
 						-randomMinimax(kopijaIgre,globina-1).get(0).ocena;  
 			}
-			najboljsePoteze.addIfBest(new OcenjenaPoteza(p, ocena));
-			int i = random.nextInt(najboljsePoteze.list().size());	
-			trenutnoNajboljsa = najboljsePoteze.list().get(i).poteza;	
+			najboljsePoteze.addIfBest(new OcenjenaPoteza(p, ocena));	
 		}
 		return najboljsePoteze.list();
 	}
 	
+	// funkcija, ki minimaxu pomaga naključno izbrati potezo iz nabora najboljših potez
 	public static Koordinati vrniPotezo(List<OcenjenaPoteza> ocenjenePoteze) {
 		int i = random.nextInt(ocenjenePoteze.size());	
 		return ocenjenePoteze.get(i).poteza;	
 	}
 	
 	
-	
+	// funkcija, ki poišče zmago v potezi (da ne razmišlja predolgo, če lahko takoj zmaga)
 	public static Koordinati poisciZmago(Igra igra) {
 		List<Koordinati> moznePoteze = igra.poteze_omejeno();
 		for (Koordinati p : moznePoteze) {
@@ -167,6 +140,7 @@ public class Inteligenca extends KdoIgra {
 		return null;
 	}
 	
+	// funkcija, ki poišče, ali lahko nasprotnih zmaga v naslednji potezi (in potem ustrezno zablokira to zmago)
 	public static Koordinati poisciPoraz(Igra igra) {
 		Igra kopijaIgre = new Igra(igra);
 		kopijaIgre.naPotezi = kopijaIgre.naPotezi.nasprotnik();
