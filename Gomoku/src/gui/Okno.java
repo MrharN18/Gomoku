@@ -1,3 +1,5 @@
+// uvoz potrebnih paketov
+
 package gui;
 
 import java.awt.Color;
@@ -24,25 +26,31 @@ import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 
 import vodja.Vodja;
-//import logika.Igra;
 import logika.Igralec;
 import vodja.VrstaIgralca;
 
 @SuppressWarnings("serial")
 public class Okno extends JFrame implements ActionListener{
 	
+	// platno, na katerem je narisana igra
 	public Platno polje;
 	
+	// statusna vrstica
 	private JLabel status;
 	
+	// zgornji meniji in gumb za razveljavitev
 	private JMenuItem igraClovekRacunalnik, igraRacunalnikClovek, igraClovekClovek, igraRacunalnikRacunalnik;
 	private JMenuItem velikostPlosce;
 	private JButton razveljavi;
-	
 	private final JMenuItem settings;
+	
+	// pop-up meni za nastavitve
     private final JDialog s_pane;
+	
+	// gumb za shranjevanje nastavitev
     private final JButton s_save;
     
+	// gumbi za spremembe barv, imen igralcev
     private final JButton s_p1_colour_button;
     private final JLabel BLabel;
     
@@ -64,15 +72,20 @@ public class Okno extends JFrame implements ActionListener{
     private final JButton zmagovalna_colour_button;
     private final JLabel zmagovalnaLabel;
 
+	// zavesica za algoritme belega in črnega igralca
     private final JComboBox<String> s_ai1_algo;
     private final JComboBox<String> s_ai2_algo;
 
+	
+	// gumba za globini algoritmov
     final JSpinner s_minimax_depth;
     final JSpinner s_negamax_depth;
     final JSpinner s_mcts_time;
     
+	// kjukica za časovni zamik poteze računalnika (da ne odigra takoj)
     final JCheckBox omejitev_AI;
     
+	// barve
     private Color t_p1_colour;
     private Color t_p2_colour;
     private Color t_fg_colour;
@@ -80,6 +93,7 @@ public class Okno extends JFrame implements ActionListener{
     private Color t_accent_colour;
     private Color zmagovalna;
 
+	// velikost nove igre (rabimo samo ko prvič zaženemo, da nariše platno)
     public int velikost;
 	
 	public Okno(int N) {
@@ -92,18 +106,21 @@ public class Okno extends JFrame implements ActionListener{
 		JMenuBar menubar = new JMenuBar();
         setJMenuBar(menubar);
         
+		// glavna menija
         JMenu menuigra = dodajMenu(menubar, "Nova igra");
         JMenu menunastavitve = dodajMenu(menubar, "Nastavitve");
         
+		// podmeniji igre
         igraClovekRacunalnik = dodajMenuItem(menuigra, "Človek – računalnik");
         igraRacunalnikClovek = dodajMenuItem(menuigra, "Računalnik – človek");
         igraClovekClovek = dodajMenuItem(menuigra, "Človek – človek");
         igraRacunalnikRacunalnik = dodajMenuItem(menuigra, "Računalnik – računalnik");
         
+		// podmenija nastavitev
         velikostPlosce = dodajMenuItem(menunastavitve, "Velikost plosce");
-        
         settings = dodajMenuItem(menunastavitve,"Nastavitve");
         
+		// gumb "razveljavi zadnjo potezo"
         razveljavi = new JButton("Razveljavi");
         final GridBagConstraints undo_layout = new GridBagConstraints();
         undo_layout.gridx = 0;
@@ -112,17 +129,19 @@ public class Okno extends JFrame implements ActionListener{
         getContentPane().add(razveljavi, undo_layout);
         razveljavi.addActionListener(this);
         
+		// polje in postavitev polja v oknu
         polje = new Platno(velikost);
         
         GridBagConstraints polje_layout = new GridBagConstraints();
 		polje_layout.gridx = 0;
 		polje_layout.gridy = 0;
 		polje_layout.fill = GridBagConstraints.BOTH;
-//		polje_layout.anchor = GridBagConstraints.CENTER;
 		polje_layout.weightx = 1.0;
 		polje_layout.weighty = 1.0;
 		getContentPane().add(polje, polje_layout);
 		
+		
+		// statusna vrstica in njena postavitev v oknu
 		status = new JLabel();
 		status.setFont(new Font(status.getFont().getName(),
 							    status.getFont().getStyle(),
@@ -132,15 +151,14 @@ public class Okno extends JFrame implements ActionListener{
 		status_layout.gridy = 1;
 		status_layout.anchor = GridBagConstraints.CENTER;
 		getContentPane().add(status, status_layout);
-		
 		status.setText("Izberite igro!");
 			
 	
-    
+    	// pop-up meni za nastavitve
     	s_pane = new JDialog(this, "Nastavitve", /* modal */ true);
     	s_pane.setLayout(new GridBagLayout());
 
-    	// Nastavitve imena in barve 1. igralca
+    	// nastavitve imena in barve 1. igralca
     	final JLabel s_p1_name_label = new JLabel("P1:");
     	final GridBagConstraints s_p1_name_label_layout = new GridBagConstraints();
     	s_p1_name_label_layout.gridx = 0;
@@ -173,7 +191,8 @@ public class Okno extends JFrame implements ActionListener{
 	    BLabel_layout.anchor = GridBagConstraints.WEST;
 	    s_pane.add(BLabel, BLabel_layout);
 	
-	    // Nastavitve imena in barve 2. igralca
+		
+	    // nastavitve imena in barve 2. igralca
 	    final JLabel s_p2_name_label = new JLabel("P2:");
 	    final GridBagConstraints s_p2_name_label_layout = new GridBagConstraints();
 	    s_p2_name_label_layout.gridx = 0;
@@ -206,7 +225,8 @@ public class Okno extends JFrame implements ActionListener{
 	    WLabel_layout.anchor = GridBagConstraints.WEST;
 	    s_pane.add(WLabel, WLabel_layout);
 	
-	    // Nastavitve barv igre
+		
+	    // nastavitve barv igre
 	    s_fg_colour_button = new JButton("Plosca");
 	    final GridBagConstraints s_fg_colour_button_layout = new GridBagConstraints();
 	    s_fg_colour_button_layout.gridx = 0;
@@ -223,7 +243,6 @@ public class Okno extends JFrame implements ActionListener{
 	    ploscaLabel_layout.gridy = 2;
 	    ploscaLabel_layout.anchor = GridBagConstraints.WEST;
 	    s_pane.add(ploscaLabel, ploscaLabel_layout);
-	    
 	    
 	    s_bg_colour_button = new JButton("Ozadje");
 	    final GridBagConstraints s_bg_colour_button_layout = new GridBagConstraints();
@@ -276,9 +295,9 @@ public class Okno extends JFrame implements ActionListener{
 	    zmagovalnaLabel_layout.anchor = GridBagConstraints.WEST;
 	    s_pane.add(zmagovalnaLabel, zmagovalnaLabel_layout);
 	
-	    // Izbira algoritma za AI igralca
+	    // izbira algoritma za 1. AI igralca
 	    final String[] ai_list = { "Naiven", "Minimax", "AlfaBeta" };
-	    // 1. AI igralec
+
 	    final JLabel s_ai1_algo_label = new JLabel("AI1:");
 	    final GridBagConstraints s_ai1_algo_label_layout = new GridBagConstraints();
 	    s_ai1_algo_label_layout.gridx = 0;
@@ -293,7 +312,7 @@ public class Okno extends JFrame implements ActionListener{
 	    s_ai1_algo_layout.anchor = GridBagConstraints.CENTER;
 	    s_pane.add(s_ai1_algo, s_ai1_algo_layout);
 	
-	    // 2. AI igralec
+	    // izbira algoritma za 2. AI igralca
 	    final JLabel s_ai2_algo_label = new JLabel("AI2:");
 	    final GridBagConstraints s_ai2_algo_label_layout = new GridBagConstraints();
 	    s_ai2_algo_label_layout.gridx = 0;
@@ -308,6 +327,7 @@ public class Okno extends JFrame implements ActionListener{
 	    s_ai2_algo_layout.anchor = GridBagConstraints.CENTER;
 	    s_pane.add(s_ai2_algo, s_ai2_algo_layout);
 	
+		// globini algoritmov 1. in 2. igralca
 	    s_minimax_depth = new JSpinner(new SpinnerNumberModel(Vodja.globina_B, 1, 5, 1));
 	    final GridBagConstraints s_minimax_depth_layout = new GridBagConstraints();
 	    s_minimax_depth_layout.gridx = 2;
@@ -322,6 +342,7 @@ public class Okno extends JFrame implements ActionListener{
 	    s_negamax_depth_layout.anchor = GridBagConstraints.CENTER;
 	    s_pane.add(s_negamax_depth, s_negamax_depth_layout);
 	    
+		// časovni zamik za potezo AIja
 	    omejitev_AI = new JCheckBox();
 	    final GridBagConstraints omejitev_layout = new GridBagConstraints();
 	    omejitev_layout.gridx = 0;
@@ -344,7 +365,7 @@ public class Okno extends JFrame implements ActionListener{
 	    s_mcts_time_layout.anchor = GridBagConstraints.CENTER;
 	    s_pane.add(s_mcts_time, s_mcts_time_layout);
 	
-	    // Gumb za shranjevanje
+	    // gumb za shranjevanje
 	    s_save = new JButton("Shrani");
 	    final GridBagConstraints s_save_layout = new GridBagConstraints();
 	    s_save_layout.gridx = 0;
@@ -353,15 +374,18 @@ public class Okno extends JFrame implements ActionListener{
 	    s_pane.add(s_save, s_save_layout);
 	    s_save.addActionListener(this);
 	
+		// privzeta velikost platna
 	    s_pane.setSize(500, 400);
 	}   
 	
+	// funkcija, ki doda meni zgornji orodni vrstici
 	public JMenu dodajMenu(JMenuBar menubar, String naslov) {
         JMenu menu = new JMenu(naslov);
         menubar.add(menu);
         return menu;
     }
 
+	// funkcija, ki doda podmeni meniju
     public JMenuItem dodajMenuItem(JMenu menu, String naslov) {
         JMenuItem menuitem = new JMenuItem(naslov);
         menu.add(menuitem);
@@ -369,8 +393,13 @@ public class Okno extends JFrame implements ActionListener{
         return menuitem;
     }
     
+	
+	// tukaj so dogodki, ki se zgodijo če uporabnik pritisne nek gumb oz. odpre meni, ...
     @Override
 	public void actionPerformed(ActionEvent e) {
+		
+		// dogodki, povezani z izbiro igre
+		
 		if (e.getSource() == igraClovekRacunalnik) {
 			Vodja.vrstaIgralca = new EnumMap<Igralec,VrstaIgralca>(Igralec.class);
 			Vodja.vrstaIgralca.put(Igralec.B, VrstaIgralca.C); 
@@ -391,6 +420,10 @@ public class Okno extends JFrame implements ActionListener{
 			Vodja.vrstaIgralca.put(Igralec.B, VrstaIgralca.R); 
 			Vodja.vrstaIgralca.put(Igralec.W, VrstaIgralca.R);
 			Vodja.igramoNovoIgro();
+			
+			
+			// velikost plošče
+			
 		} else if (e.getSource() == velikostPlosce) {
 			String velikostPlosce = JOptionPane.showInputDialog(this, "Velikost plosce:");
             if (velikostPlosce != null && velikostPlosce.matches("\\d+") && Integer.parseInt(velikostPlosce) > 4 && Integer.parseInt(velikostPlosce) < 24) {
@@ -403,12 +436,17 @@ public class Okno extends JFrame implements ActionListener{
                 polje.repaint();
             }  
             
+			
+			// razveljavitev poteze
+			
 		} else if (e.getSource() == razveljavi) {
 			Vodja.undo();
 			polje.repaint();
+			
+			// pop-up meni nastavitev
 		} else if (e.getSource() == settings) {
 			
-
+		// spremenljivke, ki v pop-up meni nastavitev dajo privzete vrednosti (oz. vrednosti, ki v danem trenutku veljajo
             s_p1_name.setText(Vodja.igralecName.get(Igralec.B));
             s_p2_name.setText(Vodja.igralecName.get(Igralec.W));
 
@@ -420,6 +458,7 @@ public class Okno extends JFrame implements ActionListener{
             
             s_pane.setVisible(true);
             
+		// pritisnemo gumb shrani, ki shrani vse nastavitve, ki smo jih spremenili
 	    } else if (e.getSource() == s_save) {
 	        if (t_p1_colour != null) {
 	            polje.barvaB = t_p1_colour;
@@ -447,7 +486,7 @@ public class Okno extends JFrame implements ActionListener{
 	            Vodja.igralecName.put(Igralec.W, s_p2_name.getText());
 	        }
 	
-	        // Preveri, če se je algoritem za AI spremenil in nato znova zažene igro
+	        // preveri, če se je algoritem za AI spremenil in nato znova zažene igro
 	        if (!Vodja.aiAlgorithm.get(Igralec.B).equals(s_ai1_algo.getSelectedItem().toString())
 	                || !Vodja.aiAlgorithm.get(Igralec.W).equals(s_ai2_algo.getSelectedItem().toString())) {
 	            Vodja.aiAlgorithm.put(Igralec.B, s_ai1_algo.getSelectedItem().toString());
@@ -457,7 +496,7 @@ public class Okno extends JFrame implements ActionListener{
 	            }
 	        }
 	
-	        // Nastavi AI parametre, ki jih lahko spreminjamo med igro
+	        // nastavi AI parametre, ki jih lahko spreminjamo med igro (globine algoritmov, razne barve, itd.)
 	        Vodja.globina_B = (int) s_minimax_depth.getValue();
 	        Vodja.globina_W = (int) s_negamax_depth.getValue();
 	        Vodja.mcts_time_ms = (int) s_mcts_time.getValue();
@@ -513,6 +552,9 @@ public class Okno extends JFrame implements ActionListener{
 				
 	}
 
+	
+	// funkcija, ki skrbi za repaint platna in spreminjanje statusne vrstice
+	
 	public void osveziGUI() {
 		if (Vodja.igra == null) {
 			status.setText("Igra ni v teku.");
