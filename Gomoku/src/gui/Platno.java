@@ -24,10 +24,19 @@ public class Platno extends JPanel implements MouseListener{
 	
 	Color barvaB;
 	Color barvaW;
+	Color ozadje = Color.WHITE;
+	Color plosca = Color.GREEN;
+	Color zadnjaPoteza = Color.RED;
+	Color zmagovalnaVrsta = Color.LIGHT_GRAY;
+	
 	public int N;
 	
+	public void spremeniOzadje(Color ozadje) {
+		setBackground(ozadje);
+	}
+	
 	public Platno(int velikost) {
-		setBackground(new Color(100, 200, 100));
+		setBackground(ozadje);
 		this.addMouseListener(this);
 		barvaB =Color.BLACK;
 		barvaW = Color.WHITE;
@@ -48,8 +57,8 @@ public class Platno extends JPanel implements MouseListener{
 		return Math.min(getWidth(), getHeight()) / (double) N - 0.03 * (Math.min(getWidth(), getHeight()) / (double) N);
 	}
 	
-	// Relativni prostor okoli X in O
-	private final static double PADDING = 0.12;
+	// Relativni prostor okoli B in W
+	private final static double PADDING = 0.07;
 		
 	private void paintB(Graphics2D g2, int i, int j) {
 		double w = squareWidth();
@@ -62,6 +71,8 @@ public class Platno extends JPanel implements MouseListener{
 		g2.setColor(barvaB);
 		g2.setStroke(new BasicStroke((float) (w * LINE_WIDTH)));
 		g2.fillOval((int)x, (int)y, (int)d , (int)d);
+		g2.setColor(Color.BLACK);
+		g2.drawOval((int)x, (int)y, (int)d , (int)d);
 	}
 	
 	/**
@@ -81,8 +92,27 @@ public class Platno extends JPanel implements MouseListener{
 		g2.setColor(barvaW);
 		g2.setStroke(new BasicStroke((float) (w * LINE_WIDTH)));
 		g2.fillOval((int)x, (int)y, (int)d , (int)d);
-		g2.setColor(barvaB);
+		g2.setColor(Color.BLACK);
 		g2.drawOval((int)x, (int)y, (int)d , (int)d);
+	}
+	
+	private void paintZadnjaPoteza(Graphics2D g2, Koordinati zadnja) {
+		if (zadnja != null) {
+			int i = zadnja.getX();
+			int j = zadnja.getY();
+			
+			double w = squareWidth();
+			double dx = (getWidth()/2.0)- ((N/2.0) * w);
+			double dy = (getHeight()/2.0)- ((N/2.0) * w);
+			
+			double d = w * (1.0 - LINE_WIDTH - 2.0 * PADDING); // premer O
+			double x = w * (i + 0.5 * LINE_WIDTH + PADDING) + dx;
+			double y = w * (j + 0.5 * LINE_WIDTH + PADDING) + dy;
+			
+			g2.setStroke(new BasicStroke((float) (1.5 * w * LINE_WIDTH)));
+			g2.setColor(zadnjaPoteza);
+			g2.drawOval((int)x, (int)y, (int)d , (int)d);
+		}
 	}
 	
 	@Override
@@ -94,18 +124,23 @@ public class Platno extends JPanel implements MouseListener{
 		double dx = (getWidth()/2.0)- ((N/2.0) * w);
 		double dy = (getHeight()/2.0)- ((N/2.0) * w);
 
+		// plosca
+		
+		g2.setColor(plosca);
+		g2.fillRect( (int) dx, (int) dy, (int) (N * w), (int) (N * w));
+		
 		// če imamo zmagovalno terico, njeno ozadje pobarvamo
 		Vrsta t = null;
 		if (Vodja.igra != null) {t = Vodja.igra.zmagovalnaVrsta();}
 		if (t != null) {
-			g2.setColor(new Color(255, 255, 196));
+			g2.setColor(zmagovalnaVrsta);
 			for (int k = 0; k < 5; k++) {
 				int i = t.x[k];
 				int j = t.y[k];
 				g2.fillRect((int)(w * i + dx), (int)(w * j + dy), (int)w, (int)w);
 			}
 		}
-		
+	
 		// črte
 		g2.setColor(Color.BLACK);
 		g2.setStroke(new BasicStroke((float) (w * LINE_WIDTH)));
@@ -138,6 +173,8 @@ public class Platno extends JPanel implements MouseListener{
 //			    (int)(N * w + dx),
 //			    (int)(N * w + dy));
 		
+
+		
 		
 		Polje[][] plosca;;
 		if (Vodja.igra != null) {
@@ -145,8 +182,8 @@ public class Platno extends JPanel implements MouseListener{
 			for (int i = 0; i < N; i++) {
 				for (int j = 0; j < N; j++) {
 					switch(plosca[i][j]) {
-					case B: paintB(g2, i, j); break;
-					case W: paintW(g2, i, j); break;
+					case B: paintB(g2, i, j); paintZadnjaPoteza(g2, Vodja.igra.zadnjaPoteza); break;
+					case W: paintW(g2, i, j); paintZadnjaPoteza(g2, Vodja.igra.zadnjaPoteza); break;
 					default: break;
 					}
 				}

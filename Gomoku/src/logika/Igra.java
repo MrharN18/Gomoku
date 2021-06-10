@@ -1,5 +1,6 @@
 package logika;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import splosno.Koordinati;
@@ -18,6 +19,7 @@ public class Igra {
 	
 	public static List<Vrsta> VRSTE;
 	
+	public ArrayList<Koordinati> odigranePoteze;
 	protected Stanje stanje = null;
 
 	public static void zmagovalneVrste(int N) {
@@ -56,6 +58,8 @@ public class Igra {
 		}
 		naPotezi = Igralec.B;
 		zmagovalneVrste(N);
+		odigranePoteze = new ArrayList<Koordinati>(); 
+		
 	}
 	
 	public Igra() {
@@ -71,6 +75,7 @@ public class Igra {
 		}
 		naPotezi = Igralec.B;
 		zmagovalneVrste(N);
+		odigranePoteze = new ArrayList<Koordinati>(); 
 	}
 	
 	public Igra(Igra igra) {
@@ -86,6 +91,7 @@ public class Igra {
 		}
 		
 		this.naPotezi = igra.naPotezi;
+		odigranePoteze = new ArrayList<Koordinati>(igra.odigranePoteze); 
 	}
 	
 	public Polje[][] getPlosca () {
@@ -128,25 +134,43 @@ public class Igra {
 	
 	
 	public boolean odigraj(Koordinati p) {
-		if (plosca[p.getX()][p.getY()] == Polje.PRAZNO) {
-			plosca[p.getX()][p.getY()] = naPotezi.getPolje();
-			naPotezi = naPotezi.nasprotnik();
-			
-			predzadnjaPoteza = zadnjaPoteza;
-			zadnjaPoteza = p;
-			
-			return true;
+		if (p != null) {
+			if (plosca[p.getX()][p.getY()] == Polje.PRAZNO) {
+				plosca[p.getX()][p.getY()] = naPotezi.getPolje();
+				naPotezi = naPotezi.nasprotnik();
+				odigranePoteze.add(p);
+				
+				predzadnjaPoteza = zadnjaPoteza;
+				zadnjaPoteza = p;
+				
+				return true;
+			}
+			else {
+				return false;
+			}
 		}
-		else {
-			return false;
-		}
+		return false;
+		
 	}
 	
+	public Koordinati zadnja_poteza() {
+        if (odigranePoteze.isEmpty()) {
+            return null;
+        } else {
+            return odigranePoteze.get(odigranePoteze.size() - 1);
+        }
+    }
+	
 	public void razveljavi() {
-		if (predzadnjaPoteza != null && stanje == Stanje.V_TEKU) {
-			plosca[zadnjaPoteza.getX()][zadnjaPoteza.getY()] = Polje.PRAZNO;
-			plosca[predzadnjaPoteza.getX()][predzadnjaPoteza.getY()] = Polje.PRAZNO;
+				
+		Koordinati zadnja = zadnja_poteza();
+		if (zadnja != null && stanje == Stanje.V_TEKU) {
+			plosca[zadnja.getX()][zadnja.getY()] = Polje.PRAZNO;
+			odigranePoteze.remove(odigranePoteze.size() - 1);
+			naPotezi = naPotezi.nasprotnik();
+			zadnjaPoteza = zadnja_poteza();
 		}
+		
 	}
 	
 	private Igralec cigavaVrsta(Vrsta t) {
