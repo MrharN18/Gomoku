@@ -7,9 +7,8 @@ import logika.Vrsta;
 
 public class OceniPozicijo {
 	
-	
+	// iteracija skozi vse zmagovalne vrste
 	public static int oceniPozicijo(Igra igra, Igralec jaz) {
-		Inteligenca.evaluationCount++;
 		int ocena = 0;
 		for (Vrsta v : Igra.VRSTE) {
 			ocena = ocena + oceniVrsto(v, igra, jaz);
@@ -17,6 +16,7 @@ public class OceniPozicijo {
 		return ocena;	
 	}
 	
+	// prešteje število zapolnjenih mest igralca, tam, kjer je zmaga še mogoča
 	public static int oceniVrsto (Vrsta v, Igra igra, Igralec jaz) {
 		Polje[][] plosca = igra.getPlosca();
 		boolean zaporedoma = true;
@@ -34,6 +34,7 @@ public class OceniPozicijo {
 		return oceni1(count_B,count_W,jaz,zaporedoma);
 	}
 	
+	// funkcije oceni, oceni1 in oceni2 so različne vrste ocenjevanja vrst (poskusi za tekmovanje)
 	public static int oceni(int count_B, int count_W, Igralec jaz) {
 		int score = 0;
 		if (jaz == Igralec.B) {
