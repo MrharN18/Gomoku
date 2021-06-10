@@ -7,23 +7,29 @@ import splosno.Koordinati;
 
 public class Igra {
 	
+	// velikost igre
 	public int N;
 	
+	// plošča
 	public Polje[][] plosca;
 	
+	// kdo je na potezi
 	public Igralec naPotezi;
 	
+	// koordinati zadnje poteze (da jo poudari)
 	public Koordinati zadnjaPoteza;
 	
-	public Koordinati predzadnjaPoteza;
-	
+	// seznam vseh zmagovalnih vrst
 	public static List<Vrsta> VRSTE;
 	
+	// seznam v katerega se shranjujejo odigrane poteze
 	public ArrayList<Koordinati> odigranePoteze;
+	
+	// stanje igre (v teku, zmaga,...)
 	protected Stanje stanje = null;
-
+	
+	// funkcija, ki glede na velikost igre določi vse zmagovalne vrste
 	public static void zmagovalneVrste(int N) {
-
 		int[][] smer = {{1,0}, {0,1}, {1,1}, {1,-1}};
 		for (int x = 0; x < N; x++) {
 			for (int y = 0; y < N; y++) {
@@ -45,9 +51,9 @@ public class Igra {
 		}
 	}
 	
+	// konstruktor z velikostjo za parameter
 	public Igra(int N) {
 		VRSTE = new LinkedList<Vrsta>();
-		predzadnjaPoteza = null;
 		zadnjaPoteza = null;
 		this.N = N;
 		plosca = new Polje[N][N];
@@ -62,9 +68,9 @@ public class Igra {
 		
 	}
 	
+	// privzeta igra velikosti 15x15
 	public Igra() {
 		VRSTE = new LinkedList<Vrsta>();
-		predzadnjaPoteza = null;
 		zadnjaPoteza = null;
 		this.N = 15;
 		plosca = new Polje[N][N];
@@ -78,8 +84,8 @@ public class Igra {
 		odigranePoteze = new ArrayList<Koordinati>(); 
 	}
 	
+	// igra, ki je dvojnik neke že igrane igre v teku
 	public Igra(Igra igra) {
-		predzadnjaPoteza = null;
 		zadnjaPoteza = null;
 		this.N = igra.N;
 		
@@ -98,6 +104,7 @@ public class Igra {
 		return plosca;
 	}
 	
+	// vse možne poteze
 	public List<Koordinati> poteze() {
 		LinkedList<Koordinati> ps = new LinkedList<Koordinati>();
 		for (int i = 0; i < N; i++) {
@@ -110,6 +117,7 @@ public class Igra {
 		return ps;
 	}
 	
+	// seznam potez samo okoli polj, ki so že zasedena (za hitrejše delo inteligence)
 	public List<Koordinati> poteze_omejeno(){
 		LinkedList<Koordinati> ps = new LinkedList<Koordinati>();
 		
@@ -132,17 +140,14 @@ public class Igra {
 		return ps;
 	}
 	
-	
+	// odigraj potezo (postavi plošček na koordinate p)
 	public boolean odigraj(Koordinati p) {
 		if (p != null) {
 			if (plosca[p.getX()][p.getY()] == Polje.PRAZNO) {
 				plosca[p.getX()][p.getY()] = naPotezi.getPolje();
 				naPotezi = naPotezi.nasprotnik();
 				odigranePoteze.add(p);
-				
-				predzadnjaPoteza = zadnjaPoteza;
 				zadnjaPoteza = p;
-				
 				return true;
 			}
 			else {
@@ -153,6 +158,7 @@ public class Igra {
 		
 	}
 	
+	// vrne zadnjo potezo
 	public Koordinati zadnja_poteza() {
         if (odigranePoteze.isEmpty()) {
             return null;
@@ -161,8 +167,8 @@ public class Igra {
         }
     }
 	
-	public void razveljavi() {
-				
+	// razveljavi zadnjo odigrano potezo
+	public void razveljavi() {	
 		Koordinati zadnja = zadnja_poteza();
 		if (zadnja != null && stanje == Stanje.V_TEKU) {
 			plosca[zadnja.getX()][zadnja.getY()] = Polje.PRAZNO;
@@ -173,6 +179,7 @@ public class Igra {
 		
 	}
 	
+	// pogleda, če je kdo že zmagal in vrne igralca, ki je zmagovalec
 	private Igralec cigavaVrsta(Vrsta t) {
 		int count_W = 0;
 		int count_B = 0;
@@ -188,7 +195,7 @@ public class Igra {
 		else { return null; }
 	}
 
-	
+	// pogleda katera vrsta je zmagala
 	public Vrsta zmagovalnaVrsta() {
 		for (Vrsta t : VRSTE) {
 			Igralec lastnik = cigavaVrsta(t);
@@ -197,9 +204,8 @@ public class Igra {
 		return null;
 	}
 	
-	
+	// vrne trenutno stanje igre	
 	public Stanje stanje() {
-		
 		Vrsta t = zmagovalnaVrsta();
 		if (t != null) {
 			switch (plosca[t.x[0]][t.y[0]]) {
