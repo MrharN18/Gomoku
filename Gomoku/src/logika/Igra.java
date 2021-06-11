@@ -62,7 +62,7 @@ public class Igra {
 				plosca[i][j] = Polje.PRAZNO;
 			}
 		}
-		naPotezi = Igralec.B;
+		naPotezi = Igralec.B; // prvi je na potezi igralec B
 		zmagovalneVrste(N);
 		odigranePoteze = new ArrayList<Koordinati>(); 
 		
@@ -100,6 +100,7 @@ public class Igra {
 		odigranePoteze = new ArrayList<Koordinati>(igra.odigranePoteze); 
 	}
 	
+	// metoda vrne igralno plosco
 	public Polje[][] getPlosca () {
 		return plosca;
 	}
@@ -141,6 +142,7 @@ public class Igra {
 	}
 	
 	// odigraj potezo (postavi plošček na koordinate p)
+	// metoda vrne true, ce je bila poteza uspesno odigrana, sicer vrne false
 	public boolean odigraj(Koordinati p) {
 		if (p != null) {
 			if (plosca[p.getX()][p.getY()] == Polje.PRAZNO) {
@@ -158,7 +160,7 @@ public class Igra {
 		
 	}
 	
-	// vrne zadnjo potezo
+	// vrne zadnjo potezo, ce potez ni vrne null
 	public Koordinati zadnja_poteza() {
         if (odigranePoteze.isEmpty()) {
             return null;
@@ -170,7 +172,7 @@ public class Igra {
 	// razveljavi zadnjo odigrano potezo
 	public void razveljavi() {	
 		Koordinati zadnja = zadnja_poteza();
-		if (zadnja != null && stanje == Stanje.V_TEKU) {
+		if (zadnja != null && stanje == Stanje.V_TEKU) {   // potezo lahko razveljavimo le, ce je igra v teku
 			plosca[zadnja.getX()][zadnja.getY()] = Polje.PRAZNO;
 			odigranePoteze.remove(odigranePoteze.size() - 1);
 			naPotezi = naPotezi.nasprotnik();
@@ -206,6 +208,7 @@ public class Igra {
 	
 	// vrne trenutno stanje igre	
 	public Stanje stanje() {
+		// ali imamo zmagovalca
 		Vrsta t = zmagovalnaVrsta();
 		if (t != null) {
 			switch (plosca[t.x[0]][t.y[0]]) {
@@ -218,7 +221,8 @@ public class Igra {
 			case PRAZNO: assert false;
 			}
 		}
-
+		// ali imamo kaksno prazno polje
+		// ce ga imamo, igre ni konec in je nekdo na potezi
 		for (int i = 0; i < N; i++) {
 			for (int j = 0; j < N; j++) {
 				if (plosca[i][j] == Polje.PRAZNO) {
@@ -226,6 +230,7 @@ public class Igra {
 					return Stanje.V_TEKU;}
 			}
 		}
+		// plosca je polna, rezultat je neodlocen
 		stanje = Stanje.NEODLOCENO;
 		return Stanje.NEODLOCENO;
 	}
