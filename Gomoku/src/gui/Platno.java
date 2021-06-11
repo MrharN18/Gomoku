@@ -25,9 +25,9 @@ public class Platno extends JPanel implements MouseListener{
 	Color barvaB;
 	Color barvaW;
 	Color ozadje = Color.WHITE;
-	Color plosca = Color.GREEN;
-	Color zadnjaPoteza = Color.RED;
-	Color zmagovalnaVrsta = Color.LIGHT_GRAY;
+	Color plosca = new Color(158,214,188);
+	Color zadnjaPoteza = new Color(181,99,201);
+	Color zmagovalnaVrsta = new Color(198,144,212);
 	
 	// velikost igre
 	public int N;
