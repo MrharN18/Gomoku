@@ -24,7 +24,7 @@ public class Inteligenca extends KdoIgra {
 	}
 	
 	
-	public Koordinati izberiPotezo (Igra igra, String algoritem, int globina, boolean zamik, int dolzinaZamika) {
+	public Koordinati izberiPotezo (Igra igra, String algoritem, int globina) {
 				
 				// poskuša najti takojšnjo zmago
 				Koordinati r = poisciZmago(igra);
