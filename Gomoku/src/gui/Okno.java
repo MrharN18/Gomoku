@@ -32,70 +32,72 @@ import vodja.VrstaIgralca;
 @SuppressWarnings("serial")
 public class Okno extends JFrame implements ActionListener{
 	
-    // platno, na katerem je narisana igra
-    public Platno polje;
+	// platno, na katerem je narisana igra
+	public Platno polje;
 	
-    // statusna vrstica
-    private JLabel status;
+	// statusna vrstica
+	private JLabel status;
 	
-    // zgornji meniji in gumb za razveljavitev
-    private JMenuItem igraClovekRacunalnik, igraRacunalnikClovek, igraClovekClovek, igraRacunalnikRacunalnik;
-    private JMenuItem velikostPlosce;
-    private JButton razveljavi;
-    private final JMenuItem settings;
+	// zgornji meniji in gumb za razveljavitev
+	private JMenuItem igraClovekRacunalnik, igraRacunalnikClovek, igraClovekClovek, igraRacunalnikRacunalnik;
+	private JMenuItem velikostPlosce;
+	private JButton razveljavi;
+	private final JMenuItem settings;
 	
-    // pop-up meni za nastavitve
-    private final JDialog s_pane;
-	
+	// pop-up meni za nastavitve
+    private final JDialog s_platno;
+    
     // gumb za shranjevanje nastavitev
-    private final JButton s_save;
+    private final JButton s_shrani;
     
-    // gumbi za spremembe barv, imen igralcev
-    private final JButton s_p1_colour_button;
-    private final JLabel BLabel;
+    // polji za ime igralcev
+    private final JTextField s_B_name;
+    private final JTextField s_W_name;
     
-    private final JButton s_p2_colour_button;
-    private final JLabel WLabel;
+    // gumbi za spremembe barv in izbrane prikaz barve
+    private final JButton s_B_colour_button;
+    private final JLabel s_B_label;
     
-    private final JTextField s_p1_name;
-    private final JTextField s_p2_name;
+    private final JButton s_W_colour_button;
+    private final JLabel s_W_label;
+    
+    private final JButton s_plosca_colour_button;
+    private final JLabel s_plosca_label;
+    
+    private final JButton s_ozadje_colour_button;
+    private final JLabel s_ozadje_label;
+    
+    private final JButton s_poudarek_colour_button;
+    private final JLabel s_poudarek_label;
 
-    private final JButton s_fg_colour_button;
-    private final JLabel ploscaLabel;
-    
-    private final JButton s_bg_colour_button;
-    private final JLabel ozadjeLabel;
-    
-    private final JButton s_accent_colour_button;
-    private final JLabel poudarekLabel;
-
-    private final JButton zmagovalna_colour_button;
-    private final JLabel zmagovalnaLabel;
+    private final JButton s_zmagovalna_colour_button;
+    private final JLabel s_zmagovalna_label;
 
     // zavesica za algoritme belega in črnega igralca
     private final JComboBox<String> s_ai1_algo;
     private final JComboBox<String> s_ai2_algo;
 
-	
-    // gumbi za globini algoritmov in zamik poteze racunalnika
-    final JSpinner s_p1_depth;
-    final JSpinner s_p2_depth;
+    // gumbi za globino algoritmov in zamik poteze racunalnika
+    final JSpinner s_B_depth;
+    final JSpinner s_W_depth;
     final JSpinner s_zamik_time;
     
     // kjukica za časovni zamik poteze računalnika (da ne odigra takoj)
-    final JCheckBox omejitev_AI;
+    final JCheckBox s_omejitev_AI;
     
-    // barve
-    private Color t_p1_colour;
-    private Color t_p2_colour;
-    private Color t_fg_colour;
-    private Color t_bg_colour;
-    private Color t_accent_colour;
-    private Color zmagovalna;
+    // zacasne barve uporabimo zato, da se barva spremeni sele ko pritisnemo gumb shrani
+    private Color t_B_colour;
+    private Color t_W_colour;
+    private Color t_plosca_colour;
+    private Color t_ozadje_colour;
+    private Color t_poudarek_colour;
+    private Color t_zmagovalna_colour;
 
     // velikost nove igre (rabimo samo ko prvič zaženemo, da nariše platno)
     public int velikost;
 	
+    
+    // ustvari novo glavno okno
 	public Okno(int N) {
 		super();
 		velikost = N;
@@ -103,24 +105,25 @@ public class Okno extends JFrame implements ActionListener{
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setLayout(new GridBagLayout());
 		
+		// vrstica z meniji
 		JMenuBar menubar = new JMenuBar();
         setJMenuBar(menubar);
         
-	// glavna menija
+        // glavna menija
         JMenu menuigra = dodajMenu(menubar, "Nova igra");
         JMenu menunastavitve = dodajMenu(menubar, "Nastavitve");
         
-	// podmeniji igre
+        // podmeniji igre
         igraClovekRacunalnik = dodajMenuItem(menuigra, "Človek – računalnik");
         igraRacunalnikClovek = dodajMenuItem(menuigra, "Računalnik – človek");
         igraClovekClovek = dodajMenuItem(menuigra, "Človek – človek");
         igraRacunalnikRacunalnik = dodajMenuItem(menuigra, "Računalnik – računalnik");
         
-	// podmenija nastavitev
+        // podmenija nastavitev
         velikostPlosce = dodajMenuItem(menunastavitve, "Velikost plosce");
         settings = dodajMenuItem(menunastavitve,"Nastavitve");
         
-	// gumb "razveljavi zadnjo potezo"
+        // gumb "razveljavi zadnjo potezo"
         razveljavi = new JButton("Razveljavi");
         final GridBagConstraints undo_layout = new GridBagConstraints();
         undo_layout.gridx = 0;
@@ -129,7 +132,7 @@ public class Okno extends JFrame implements ActionListener{
         getContentPane().add(razveljavi, undo_layout);
         razveljavi.addActionListener(this);
         
-	// polje in postavitev polja v oknu
+        // polje in postavitev polja v oknu
         polje = new Platno(velikost);
         
         GridBagConstraints polje_layout = new GridBagConstraints();
@@ -151,211 +154,213 @@ public class Okno extends JFrame implements ActionListener{
 		status_layout.gridy = 1;
 		status_layout.anchor = GridBagConstraints.CENTER;
 		getContentPane().add(status, status_layout);
+		
 		status.setText("Izberite igro!");
 			
 	
-    	// pop-up meni za nastavitve
-    	s_pane = new JDialog(this, "Nastavitve", /* modal */ true);
-    	s_pane.setLayout(new GridBagLayout());
+		// pop-up meni za nastavitve
+    	s_platno = new JDialog(this, "Nastavitve", /* modal */ true);
+    	s_platno.setLayout(new GridBagLayout());
 
-    	// nastavitve imena in barve 1. igralca
-    	final JLabel s_p1_name_label = new JLabel("P1:");
-    	final GridBagConstraints s_p1_name_label_layout = new GridBagConstraints();
-    	s_p1_name_label_layout.gridx = 0;
-    	s_p1_name_label_layout.gridy = 0;
-    	s_p1_name_label_layout.anchor = GridBagConstraints.CENTER;
-    	s_pane.add(s_p1_name_label, s_p1_name_label_layout);
+    	// Nastavitve imena in barve 1. igralca
+    	final JLabel s_B_name_label = new JLabel("P1:");
+    	final GridBagConstraints s_B_name_label_layout = new GridBagConstraints();
+    	s_B_name_label_layout.gridx = 0;
+    	s_B_name_label_layout.gridy = 0;
+    	s_B_name_label_layout.anchor = GridBagConstraints.CENTER;
+    	s_platno.add(s_B_name_label, s_B_name_label_layout);
 
-	    s_p1_name = new JTextField();
-	    s_p1_name.setColumns(15);
-	    final GridBagConstraints s_p1_name_layout = new GridBagConstraints();
-	    s_p1_name_layout.gridx = 1;
-	    s_p1_name_layout.gridy = 0;
-	    s_p1_name_layout.anchor = GridBagConstraints.WEST;
-	    s_pane.add(s_p1_name, s_p1_name_layout);
+	    s_B_name = new JTextField();
+	    s_B_name.setColumns(15);
+	    final GridBagConstraints s_B_name_layout = new GridBagConstraints();
+	    s_B_name_layout.gridx = 1;
+	    s_B_name_layout.gridy = 0;
+	    s_B_name_layout.anchor = GridBagConstraints.WEST;
+	    s_platno.add(s_B_name, s_B_name_layout);
 
-	    s_p1_colour_button = new JButton("Barva");
-	    final GridBagConstraints s_p1_colour_button_layout = new GridBagConstraints();
-	    s_p1_colour_button_layout.gridx = 2;
-	    s_p1_colour_button_layout.gridy = 0;
-	    s_p1_colour_button_layout.anchor = GridBagConstraints.CENTER;
-	    s_pane.add(s_p1_colour_button, s_p1_colour_button_layout);
-	    s_p1_colour_button.addActionListener(this);
+	    s_B_colour_button = new JButton("Barva");
+	    final GridBagConstraints s_B_colour_button_layout = new GridBagConstraints();
+	    s_B_colour_button_layout.gridx = 2;
+	    s_B_colour_button_layout.gridy = 0;
+	    s_B_colour_button_layout.anchor = GridBagConstraints.CENTER;
+	    s_platno.add(s_B_colour_button, s_B_colour_button_layout);
+	    s_B_colour_button.addActionListener(this);
 	    
-	    BLabel = new JLabel("     ");
-	    BLabel.setOpaque(true);
-	    BLabel.setBackground(polje.barvaB);
-	    final GridBagConstraints BLabel_layout = new GridBagConstraints();
-	    BLabel_layout.gridx = 3;
-	    BLabel_layout.gridy = 0;
-	    BLabel_layout.anchor = GridBagConstraints.WEST;
-	    s_pane.add(BLabel, BLabel_layout);
+	    s_B_label = new JLabel("     ");
+	    s_B_label.setOpaque(true);
+	    s_B_label.setBackground(polje.barvaB);
+	    final GridBagConstraints s_B_label_layout = new GridBagConstraints();
+	    s_B_label_layout.gridx = 3;
+	    s_B_label_layout.gridy = 0;
+	    s_B_label_layout.anchor = GridBagConstraints.WEST;
+	    s_platno.add(s_B_label, s_B_label_layout);
 	
-		
-	    // nastavitve imena in barve 2. igralca
-	    final JLabel s_p2_name_label = new JLabel("P2:");
-	    final GridBagConstraints s_p2_name_label_layout = new GridBagConstraints();
-	    s_p2_name_label_layout.gridx = 0;
-	    s_p2_name_label_layout.gridy = 1;
-	    s_p2_name_label_layout.anchor = GridBagConstraints.CENTER;
-	    s_pane.add(s_p2_name_label, s_p2_name_label_layout);
+	    // Nastavitve imena in barve 2. igralca
+	    final JLabel s_W_name_label = new JLabel("P2:");
+	    final GridBagConstraints s_W_name_label_layout = new GridBagConstraints();
+	    s_W_name_label_layout.gridx = 0;
+	    s_W_name_label_layout.gridy = 1;
+	    s_W_name_label_layout.anchor = GridBagConstraints.CENTER;
+	    s_platno.add(s_W_name_label, s_W_name_label_layout);
 	
-	    s_p2_name = new JTextField();
-	    s_p2_name.setColumns(15);
-	    final GridBagConstraints s_p2_name_layout = new GridBagConstraints();
-	    s_p2_name_layout.gridx = 1;
-	    s_p2_name_layout.gridy = 1;
-	    s_p2_name_layout.anchor = GridBagConstraints.WEST;
-	    s_pane.add(s_p2_name, s_p2_name_layout);
+	    s_W_name = new JTextField();
+	    s_W_name.setColumns(15);
+	    final GridBagConstraints s_W_name_layout = new GridBagConstraints();
+	    s_W_name_layout.gridx = 1;
+	    s_W_name_layout.gridy = 1;
+	    s_W_name_layout.anchor = GridBagConstraints.WEST;
+	    s_platno.add(s_W_name, s_W_name_layout);
 	
-	    s_p2_colour_button = new JButton("Barva");
-	    final GridBagConstraints s_p2_colour_button_layout = new GridBagConstraints();
-	    s_p2_colour_button_layout.gridx = 2;
-	    s_p2_colour_button_layout.gridy = 1;
-	    s_p2_colour_button_layout.anchor = GridBagConstraints.CENTER;
-	    s_pane.add(s_p2_colour_button, s_p2_colour_button_layout);
-	    s_p2_colour_button.addActionListener(this);
+	    s_W_colour_button = new JButton("Barva");
+	    final GridBagConstraints s_W_colour_button_layout = new GridBagConstraints();
+	    s_W_colour_button_layout.gridx = 2;
+	    s_W_colour_button_layout.gridy = 1;
+	    s_W_colour_button_layout.anchor = GridBagConstraints.CENTER;
+	    s_platno.add(s_W_colour_button, s_W_colour_button_layout);
+	    s_W_colour_button.addActionListener(this);
 	    
-	    WLabel = new JLabel("     ");
-	    WLabel.setOpaque(true);
-	    WLabel.setBackground(polje.barvaW);
-	    final GridBagConstraints WLabel_layout = new GridBagConstraints();
-	    WLabel_layout.gridx = 3;
-	    WLabel_layout.gridy = 1;
-	    WLabel_layout.anchor = GridBagConstraints.WEST;
-	    s_pane.add(WLabel, WLabel_layout);
+	    s_W_label = new JLabel("     ");
+	    s_W_label.setOpaque(true);
+	    s_W_label.setBackground(polje.barvaW);
+	    final GridBagConstraints s_W_label_layout = new GridBagConstraints();
+	    s_W_label_layout.gridx = 3;
+	    s_W_label_layout.gridy = 1;
+	    s_W_label_layout.anchor = GridBagConstraints.WEST;
+	    s_platno.add(s_W_label, s_W_label_layout);
 	
-		
-	    // nastavitve barv igre
-	    s_fg_colour_button = new JButton("Plosca");
-	    final GridBagConstraints s_fg_colour_button_layout = new GridBagConstraints();
-	    s_fg_colour_button_layout.gridx = 0;
-	    s_fg_colour_button_layout.gridy = 2;
-	    s_fg_colour_button_layout.anchor = GridBagConstraints.CENTER;
-	    s_pane.add(s_fg_colour_button, s_fg_colour_button_layout);
-	    s_fg_colour_button.addActionListener(this);
+	    // Nastavitve barv igre
+	    s_plosca_colour_button = new JButton("Plosca");
+	    final GridBagConstraints s_plosca_colour_button_layout = new GridBagConstraints();
+	    s_plosca_colour_button_layout.gridx = 0;
+	    s_plosca_colour_button_layout.gridy = 2;
+	    s_plosca_colour_button_layout.anchor = GridBagConstraints.CENTER;
+	    s_platno.add(s_plosca_colour_button, s_plosca_colour_button_layout);
+	    s_plosca_colour_button.addActionListener(this);
 	    
-	    ploscaLabel = new JLabel("     ");
-	    ploscaLabel.setOpaque(true);
-	    ploscaLabel.setBackground(polje.plosca);
-	    final GridBagConstraints ploscaLabel_layout = new GridBagConstraints();
-	    ploscaLabel_layout.gridx = 1;
-	    ploscaLabel_layout.gridy = 2;
-	    ploscaLabel_layout.anchor = GridBagConstraints.WEST;
-	    s_pane.add(ploscaLabel, ploscaLabel_layout);
+	    s_plosca_label = new JLabel("     ");
+	    s_plosca_label.setOpaque(true);
+	    s_plosca_label.setBackground(polje.plosca);
+	    final GridBagConstraints s_plosca_label_layout = new GridBagConstraints();
+	    s_plosca_label_layout.gridx = 1;
+	    s_plosca_label_layout.gridy = 2;
+	    s_plosca_label_layout.anchor = GridBagConstraints.WEST;
+	    s_platno.add(s_plosca_label, s_plosca_label_layout);
 	    
-	    s_bg_colour_button = new JButton("Ozadje");
-	    final GridBagConstraints s_bg_colour_button_layout = new GridBagConstraints();
-	    s_bg_colour_button_layout.gridx = 0;
-	    s_bg_colour_button_layout.gridy = 3;
-	    s_bg_colour_button_layout.anchor = GridBagConstraints.CENTER;
-	    s_pane.add(s_bg_colour_button, s_bg_colour_button_layout);
-	    s_bg_colour_button.addActionListener(this);
 	    
-	    ozadjeLabel = new JLabel("     ");
-	    ozadjeLabel.setOpaque(true);
-	    ozadjeLabel.setBackground(polje.ozadje);
-	    final GridBagConstraints ozadjeLabel_layout = new GridBagConstraints();
-	    ozadjeLabel_layout.gridx = 1;
-	    ozadjeLabel_layout.gridy = 3;
-	    ozadjeLabel_layout.anchor = GridBagConstraints.WEST;
-	    s_pane.add(ozadjeLabel, ozadjeLabel_layout);
+	    s_ozadje_colour_button = new JButton("Ozadje");
+	    final GridBagConstraints s_ozadje_colour_button_layout = new GridBagConstraints();
+	    s_ozadje_colour_button_layout.gridx = 0;
+	    s_ozadje_colour_button_layout.gridy = 3;
+	    s_ozadje_colour_button_layout.anchor = GridBagConstraints.CENTER;
+	    s_platno.add(s_ozadje_colour_button, s_ozadje_colour_button_layout);
+	    s_ozadje_colour_button.addActionListener(this);
 	    
-	    s_accent_colour_button = new JButton("Poudarek");
-	    final GridBagConstraints s_accent_colour_button_layout = new GridBagConstraints();
-	    s_accent_colour_button_layout.gridx = 0;
-	    s_accent_colour_button_layout.gridy = 4;
-	    s_accent_colour_button_layout.anchor = GridBagConstraints.CENTER;
-	    s_pane.add(s_accent_colour_button, s_accent_colour_button_layout);
-	    s_accent_colour_button.addActionListener(this);
+	    s_ozadje_label = new JLabel("     ");
+	    s_ozadje_label.setOpaque(true);
+	    s_ozadje_label.setBackground(polje.ozadje);
+	    final GridBagConstraints s_ozadje_label_layout = new GridBagConstraints();
+	    s_ozadje_label_layout.gridx = 1;
+	    s_ozadje_label_layout.gridy = 3;
+	    s_ozadje_label_layout.anchor = GridBagConstraints.WEST;
+	    s_platno.add(s_ozadje_label, s_ozadje_label_layout);
 	    
-	    poudarekLabel = new JLabel("     ");
-	    poudarekLabel.setOpaque(true);
-	    poudarekLabel.setBackground(polje.zadnjaPoteza);
-	    final GridBagConstraints poudarekLabel_layout = new GridBagConstraints();
-	    poudarekLabel_layout.gridx = 1;
-	    poudarekLabel_layout.gridy = 4;
-	    poudarekLabel_layout.anchor = GridBagConstraints.WEST;
-	    s_pane.add(poudarekLabel, poudarekLabel_layout);
+	    s_poudarek_colour_button = new JButton("Poudarek");
+	    final GridBagConstraints s_poudarek_colour_button_layout = new GridBagConstraints();
+	    s_poudarek_colour_button_layout.gridx = 0;
+	    s_poudarek_colour_button_layout.gridy = 4;
+	    s_poudarek_colour_button_layout.anchor = GridBagConstraints.CENTER;
+	    s_platno.add(s_poudarek_colour_button, s_poudarek_colour_button_layout);
+	    s_poudarek_colour_button.addActionListener(this);
 	    
-	    zmagovalna_colour_button = new JButton("Zmagovalna");
-	    final GridBagConstraints zmagovalna_button_layout = new GridBagConstraints();
-	    zmagovalna_button_layout.gridx = 0;
-	    zmagovalna_button_layout.gridy = 5;
-	    zmagovalna_button_layout.anchor = GridBagConstraints.CENTER;
-	    s_pane.add(zmagovalna_colour_button, zmagovalna_button_layout);
-	    zmagovalna_colour_button.addActionListener(this);
+	    s_poudarek_label = new JLabel("     ");
+	    s_poudarek_label.setOpaque(true);
+	    s_poudarek_label.setBackground(polje.zadnjaPoteza);
+	    final GridBagConstraints s_poudarek_label_layout = new GridBagConstraints();
+	    s_poudarek_label_layout.gridx = 1;
+	    s_poudarek_label_layout.gridy = 4;
+	    s_poudarek_label_layout.anchor = GridBagConstraints.WEST;
+	    s_platno.add(s_poudarek_label, s_poudarek_label_layout);
 	    
-	    zmagovalnaLabel = new JLabel("     ");
-	    zmagovalnaLabel.setOpaque(true);
-	    zmagovalnaLabel.setBackground(polje.zmagovalnaVrsta);
-	    final GridBagConstraints zmagovalnaLabel_layout = new GridBagConstraints();
-	    zmagovalnaLabel_layout.gridx = 1;
-	    zmagovalnaLabel_layout.gridy = 5;
-	    zmagovalnaLabel_layout.anchor = GridBagConstraints.WEST;
-	    s_pane.add(zmagovalnaLabel, zmagovalnaLabel_layout);
+	    s_zmagovalna_colour_button = new JButton("Zmagovalna");
+	    final GridBagConstraints s_zmagovalna_button_layout = new GridBagConstraints();
+	    s_zmagovalna_button_layout.gridx = 0;
+	    s_zmagovalna_button_layout.gridy = 5;
+	    s_zmagovalna_button_layout.anchor = GridBagConstraints.CENTER;
+	    s_platno.add(s_zmagovalna_colour_button, s_zmagovalna_button_layout);
+	    s_zmagovalna_colour_button.addActionListener(this);
+	    
+	    s_zmagovalna_label = new JLabel("     ");
+	    s_zmagovalna_label.setOpaque(true);
+	    s_zmagovalna_label.setBackground(polje.zmagovalnaVrsta);
+	    final GridBagConstraints s_zmagovalna_label_layout = new GridBagConstraints();
+	    s_zmagovalna_label_layout.gridx = 1;
+	    s_zmagovalna_label_layout.gridy = 5;
+	    s_zmagovalna_label_layout.anchor = GridBagConstraints.WEST;
+	    s_platno.add(s_zmagovalna_label, s_zmagovalna_label_layout);
 	
-	    // izbira algoritma za 1. AI igralca
+	    // Izbira algoritma za AI igralca
 	    final String[] ai_list = { "Naiven", "Minimax", "AlfaBeta" };
-
+	    
+	    // 1. AI igralec
 	    final JLabel s_ai1_algo_label = new JLabel("AI1:");
 	    final GridBagConstraints s_ai1_algo_label_layout = new GridBagConstraints();
 	    s_ai1_algo_label_layout.gridx = 0;
 	    s_ai1_algo_label_layout.gridy = 6;
 	    s_ai1_algo_label_layout.anchor = GridBagConstraints.CENTER;
-	    s_pane.add(s_ai1_algo_label, s_ai1_algo_label_layout);
+	    s_platno.add(s_ai1_algo_label, s_ai1_algo_label_layout);
 	
 	    s_ai1_algo = new JComboBox<String>(ai_list);
 	    final GridBagConstraints s_ai1_algo_layout = new GridBagConstraints();
 	    s_ai1_algo_layout.gridx = 1;
 	    s_ai1_algo_layout.gridy = 6;
 	    s_ai1_algo_layout.anchor = GridBagConstraints.CENTER;
-	    s_pane.add(s_ai1_algo, s_ai1_algo_layout);
+	    s_platno.add(s_ai1_algo, s_ai1_algo_layout);
 	
-	    // izbira algoritma za 2. AI igralca
+	    // 2. AI igralec
 	    final JLabel s_ai2_algo_label = new JLabel("AI2:");
 	    final GridBagConstraints s_ai2_algo_label_layout = new GridBagConstraints();
 	    s_ai2_algo_label_layout.gridx = 0;
 	    s_ai2_algo_label_layout.gridy = 7;
 	    s_ai2_algo_label_layout.anchor = GridBagConstraints.CENTER;
-	    s_pane.add(s_ai2_algo_label, s_ai2_algo_label_layout);
+	    s_platno.add(s_ai2_algo_label, s_ai2_algo_label_layout);
 	
 	    s_ai2_algo = new JComboBox<String>(ai_list);
 	    final GridBagConstraints s_ai2_algo_layout = new GridBagConstraints();
 	    s_ai2_algo_layout.gridx = 1;
 	    s_ai2_algo_layout.gridy = 7;
 	    s_ai2_algo_layout.anchor = GridBagConstraints.CENTER;
-	    s_pane.add(s_ai2_algo, s_ai2_algo_layout);
+	    s_platno.add(s_ai2_algo, s_ai2_algo_layout);
 	
 	    // globini algoritmov 1. in 2. igralca
-	    s_p1_depth = new JSpinner(new SpinnerNumberModel(Vodja.globina_B, 1, 5, 1));
-	    final GridBagConstraints s_p1_depth_layout = new GridBagConstraints();
-	    s_p1_depth_layout.gridx = 2;
-	    s_p1_depth_layout.gridy = 6;
-	    s_p1_depth_layout.anchor = GridBagConstraints.CENTER;
-	    s_pane.add(s_p1_depth, s_p1_depth_layout);
+	    s_B_depth = new JSpinner(new SpinnerNumberModel(Vodja.globina_B, 1, 5, 1));
+	    final GridBagConstraints s_B_depth_layout = new GridBagConstraints();
+	    s_B_depth_layout.gridx = 2;
+	    s_B_depth_layout.gridy = 6;
+	    s_B_depth_layout.anchor = GridBagConstraints.CENTER;
+	    s_platno.add(s_B_depth, s_B_depth_layout);
 	
-	    s_p2_depth = new JSpinner(new SpinnerNumberModel(Vodja.globina_W, 1, 5, 1));
-	    final GridBagConstraints s_p2_depth_layout = new GridBagConstraints();
-	    s_p2_depth_layout.gridx = 2;
-	    s_p2_depth_layout.gridy = 7;
-	    s_p2_depth_layout.anchor = GridBagConstraints.CENTER;
-	    s_pane.add(s_p2_depth, s_p2_depth_layout);
+	    s_W_depth = new JSpinner(new SpinnerNumberModel(Vodja.globina_W, 1, 5, 1));
+	    final GridBagConstraints s_W_depth_layout = new GridBagConstraints();
+	    s_W_depth_layout.gridx = 2;
+	    s_W_depth_layout.gridy = 7;
+	    s_W_depth_layout.anchor = GridBagConstraints.CENTER;
+	    s_platno.add(s_W_depth, s_W_depth_layout);
 	    
-	    // časovni zamik za potezo AIja
-	    omejitev_AI = new JCheckBox();
+	    
+	    // časovni zamik za potezo racunalnika
+	    s_omejitev_AI = new JCheckBox();
 	    final GridBagConstraints omejitev_layout = new GridBagConstraints();
 	    omejitev_layout.gridx = 0;
 	    omejitev_layout.gridy = 8;
 	    omejitev_layout.anchor = GridBagConstraints.WEST;
-	    s_pane.add(omejitev_AI, omejitev_layout);
+	    s_platno.add(s_omejitev_AI, omejitev_layout);
 	
 	    final JLabel zamik_AI = new JLabel("Zamik AI:");
 	    final GridBagConstraints zamik_layout = new GridBagConstraints();
 	    zamik_layout.gridx = 0;
 	    zamik_layout.gridy = 8;
 	    zamik_layout.anchor = GridBagConstraints.CENTER;
-	    s_pane.add(zamik_AI, zamik_layout);
+	    s_platno.add(zamik_AI, zamik_layout);
 	    
 	    
 	    s_zamik_time = new JSpinner(new SpinnerNumberModel(Vodja.zamik_ms, 1000, 10000, 1000));
@@ -363,20 +368,21 @@ public class Okno extends JFrame implements ActionListener{
 	    s_zamik_time_layout.gridx = 1;
 	    s_zamik_time_layout.gridy = 8;
 	    s_zamik_time_layout.anchor = GridBagConstraints.CENTER;
-	    s_pane.add(s_zamik_time, s_zamik_time_layout);
+	    s_platno.add(s_zamik_time, s_zamik_time_layout);
 	
-	    // gumb za shranjevanje
-	    s_save = new JButton("Shrani");
-	    final GridBagConstraints s_save_layout = new GridBagConstraints();
-	    s_save_layout.gridx = 0;
-	    s_save_layout.gridy = 50;
-	    s_save_layout.anchor = GridBagConstraints.PAGE_END;
-	    s_pane.add(s_save, s_save_layout);
-	    s_save.addActionListener(this);
+	    // Gumb za shranjevanje
+	    s_shrani = new JButton("Shrani");
+	    final GridBagConstraints s_shrani_layout = new GridBagConstraints();
+	    s_shrani_layout.gridx = 0;
+	    s_shrani_layout.gridy = 50;
+	    s_shrani_layout.anchor = GridBagConstraints.PAGE_END;
+	    s_platno.add(s_shrani, s_shrani_layout);
+	    s_shrani.addActionListener(this);
 	
-	    // privzeta velikost platna
-	    s_pane.setSize(500, 400);
+	    // privzeta velikost pop-up menija
+	    s_platno.setSize(500, 400);
 	}   
+	
 	
 	// funkcija, ki doda meni zgornji orodni vrstici
 	public JMenu dodajMenu(JMenuBar menubar, String naslov) {
@@ -385,7 +391,8 @@ public class Okno extends JFrame implements ActionListener{
         return menu;
     }
 
-    // funkcija, ki doda podmeni meniju
+	
+	// funkcija, ki doda podmeni meniju
     public JMenuItem dodajMenuItem(JMenu menu, String naslov) {
         JMenuItem menuitem = new JMenuItem(naslov);
         menu.add(menuitem);
@@ -393,13 +400,12 @@ public class Okno extends JFrame implements ActionListener{
         return menuitem;
     }
     
-	
+    
     // tukaj so dogodki, ki se zgodijo če uporabnik pritisne nek gumb oz. odpre meni, ...
     @Override
 	public void actionPerformed(ActionEvent e) {
-		
-		// dogodki, povezani z izbiro igre
-		
+    	
+    	// dogodki, povezani z izbiro igre
 		if (e.getSource() == igraClovekRacunalnik) {
 			Vodja.vrstaIgralca = new EnumMap<Igralec,VrstaIgralca>(Igralec.class);
 			Vodja.vrstaIgralca.put(Igralec.B, VrstaIgralca.C); 
@@ -420,8 +426,7 @@ public class Okno extends JFrame implements ActionListener{
 			Vodja.vrstaIgralca.put(Igralec.B, VrstaIgralca.R); 
 			Vodja.vrstaIgralca.put(Igralec.W, VrstaIgralca.R);
 			Vodja.igramoNovoIgro();
-			
-			
+					
 		// velikost plošče	
 		} else if (e.getSource() == velikostPlosce) {
 			String velikostPlosce = JOptionPane.showInputDialog(this, "Velikost plosce:");
@@ -434,9 +439,8 @@ public class Okno extends JFrame implements ActionListener{
             	else {Vodja.igra = null; status.setText("Izberite igro!");}
                 polje.repaint();
             }  
-            
-			
-		// razveljavitev poteze	
+         
+        // razveljavitev poteze	
 		} else if (e.getSource() == razveljavi) {
 			Vodja.undo();
 			polje.repaint();
@@ -444,47 +448,47 @@ public class Okno extends JFrame implements ActionListener{
 		// pop-up meni nastavitev
 		} else if (e.getSource() == settings) {
 			
-	    // spremenljivke, ki v pop-up meni nastavitev dajo privzete vrednosti (oz. vrednosti, ki v danem trenutku veljajo
-            s_p1_name.setText(Vodja.igralecName.get(Igralec.B));
-            s_p2_name.setText(Vodja.igralecName.get(Igralec.W));
+			// v pop-up meni nastavitve damo privzete vrednosti (oz. vrednosti, ki v danem trenutku veljajo)
+            s_B_name.setText(Vodja.igralecName.get(Igralec.B));
+            s_W_name.setText(Vodja.igralecName.get(Igralec.W));
 
             s_ai1_algo.setSelectedItem(Vodja.aiAlgorithm.get(Igralec.B));
             s_ai2_algo.setSelectedItem(Vodja.aiAlgorithm.get(Igralec.W));
 
-            s_p1_depth.setValue(Vodja.globina_B);
-            s_p2_depth.setValue(Vodja.globina_W);
+            s_B_depth.setValue(Vodja.globina_B);
+            s_W_depth.setValue(Vodja.globina_W);
             
-            s_pane.setVisible(true);
+            s_platno.setVisible(true);
             
-	    // pritisnemo gumb shrani, ki shrani vse nastavitve, ki smo jih spremenili
-	    } else if (e.getSource() == s_save) {
-	        if (t_p1_colour != null) {
-	            polje.barvaB = t_p1_colour;
+        // pritisnemo gumb shrani, ki shrani vse nastavitve, ki smo jih spremenili
+	    } else if (e.getSource() == s_shrani) {
+	        if (t_B_colour != null) {
+	            polje.barvaB = t_B_colour;
 	        }
-	        if (t_p2_colour != null) {
-	        	polje.barvaW = t_p2_colour;
+	        if (t_W_colour != null) {
+	        	polje.barvaW = t_W_colour;
 	        }
-	        if (t_fg_colour != null) {
-	            polje.plosca = t_fg_colour;
+	        if (t_plosca_colour != null) {
+	            polje.plosca = t_plosca_colour;
 	        }
-	        if (t_bg_colour != null) {
-	           polje.spremeniOzadje(t_bg_colour);
+	        if (t_ozadje_colour != null) {
+	           polje.spremeniOzadje(t_ozadje_colour);
 	        }
-	        if (t_accent_colour != null) {
-	            polje.zadnjaPoteza = t_accent_colour;
+	        if (t_poudarek_colour != null) {
+	            polje.zadnjaPoteza = t_poudarek_colour;
 	        }
-	        if (zmagovalna != null) {
-	        	polje.zmagovalnaVrsta = zmagovalna;
+	        if (t_zmagovalna_colour != null) {
+	        	polje.zmagovalnaVrsta = t_zmagovalna_colour;
 	        }
 	
-	        if (!s_p1_name.getText().isEmpty()) {
-	            Vodja.igralecName.put(Igralec.B, s_p1_name.getText());
+	        if (!s_B_name.getText().isEmpty()) {
+	            Vodja.igralecName.put(Igralec.B, s_B_name.getText());
 	        }
-	        if (!s_p2_name.getText().isEmpty()) {
-	            Vodja.igralecName.put(Igralec.W, s_p2_name.getText());
+	        if (!s_W_name.getText().isEmpty()) {
+	            Vodja.igralecName.put(Igralec.W, s_W_name.getText());
 	        }
 	
-	        // preveri, če se je algoritem za AI spremenil in nato znova zažene igro
+	        // Preveri, če se je algoritem za AI spremenil in nato znova zažene igro
 	        if (!Vodja.aiAlgorithm.get(Igralec.B).equals(s_ai1_algo.getSelectedItem().toString())
 	                || !Vodja.aiAlgorithm.get(Igralec.W).equals(s_ai2_algo.getSelectedItem().toString())) {
 	            Vodja.aiAlgorithm.put(Igralec.B, s_ai1_algo.getSelectedItem().toString());
@@ -495,11 +499,11 @@ public class Okno extends JFrame implements ActionListener{
 	        }
 	
 	        // nastavi AI parametre, ki jih lahko spreminjamo med igro (globine algoritmov, razne barve, itd.)
-	        Vodja.globina_B = (int) s_p1_depth.getValue();
-	        Vodja.globina_W = (int) s_p2_depth.getValue();
+	        Vodja.globina_B = (int) s_B_depth.getValue();
+	        Vodja.globina_W = (int) s_W_depth.getValue();
 	        Vodja.zamik_ms = (int) s_zamik_time.getValue();
 	        	
-	        if (omejitev_AI.isSelected()) {
+	        if (s_omejitev_AI.isSelected()) {
 	        	Vodja.zamik = true;
 	        }
 	        
@@ -507,51 +511,51 @@ public class Okno extends JFrame implements ActionListener{
 	        	Vodja.zamik = false;
 	        }
 	        
-	        s_pane.dispose();
-	        osveziGUI();
-	        
-	    } else if (e.getSource() == s_p1_colour_button) {
-	        Color c = JColorChooser.showDialog(s_pane, "Izberi barvo", polje.barvaB);
+	        s_platno.dispose();
+	        osveziGUI(); // sele ko pritisnemo gumb shrani, se ponastavi izgled plosce
+	     
+	    // zacasne spremenljivke barv nastavimo na izbrane barve
+	    } else if (e.getSource() == s_B_colour_button) {
+	        Color c = JColorChooser.showDialog(s_platno, "Izberi barvo", polje.barvaB);
 	        if (c != null) {
-	            t_p1_colour = c;
-	            BLabel.setBackground(c);
+	            t_B_colour = c;
+	            s_B_label.setBackground(c);
 	        }
-	    } else if (e.getSource() == s_p2_colour_button) {
-	        Color c = JColorChooser.showDialog(s_pane, "Izberi barvo", polje.barvaW);
+	    } else if (e.getSource() == s_W_colour_button) {
+	        Color c = JColorChooser.showDialog(s_platno, "Izberi barvo", polje.barvaW);
 	        if (c != null) {
-	            t_p2_colour = c;
-	            WLabel.setBackground(c);
+	            t_W_colour = c;
+	            s_W_label.setBackground(c);
 	        }
-	    } else if (e.getSource() == s_fg_colour_button) {
-	        Color c = JColorChooser.showDialog(s_pane, "Izberi barvo", polje.plosca);
+	    } else if (e.getSource() == s_plosca_colour_button) {
+	        Color c = JColorChooser.showDialog(s_platno, "Izberi barvo", polje.plosca);
 	        if (c != null) {
-	            t_fg_colour = c;
-	            ploscaLabel.setBackground(c);
+	            t_plosca_colour = c;
+	            s_plosca_label.setBackground(c);
 	        }
-	    } else if (e.getSource() == s_bg_colour_button) {
-	        Color c = JColorChooser.showDialog(s_pane, "Izberi barvo", polje.ozadje);
+	    } else if (e.getSource() == s_ozadje_colour_button) {
+	        Color c = JColorChooser.showDialog(s_platno, "Izberi barvo", polje.ozadje);
 	        if (c != null) {
-	            t_bg_colour = c;
-	            ozadjeLabel.setBackground(c);
+	            t_ozadje_colour = c;
+	            s_ozadje_label.setBackground(c);
 	        }
-	    } else if (e.getSource() == s_accent_colour_button) {
-	        Color c = JColorChooser.showDialog(s_pane, "Izberi barvo", polje.zadnjaPoteza);
+	    } else if (e.getSource() == s_poudarek_colour_button) {
+	        Color c = JColorChooser.showDialog(s_platno, "Izberi barvo", polje.zadnjaPoteza);
 	        if (c != null) {
-	            t_accent_colour = c;
-	            poudarekLabel.setBackground(c);
+	            t_poudarek_colour = c;
+	            s_poudarek_label.setBackground(c);
 	        }
-	    } else if (e.getSource() == zmagovalna_colour_button) {
-	        Color c = JColorChooser.showDialog(s_pane, "Izberi barvo", polje.zmagovalnaVrsta);
+	    } else if (e.getSource() == s_zmagovalna_colour_button) {
+	        Color c = JColorChooser.showDialog(s_platno, "Izberi barvo", polje.zmagovalnaVrsta);
 	        if (c != null) {
-	            zmagovalna = c;
-	            zmagovalnaLabel.setBackground(c);
+	            t_zmagovalna_colour = c;
+	            s_zmagovalna_label.setBackground(c);
 	        }
 	    }
 				
 	}
-
-	
-	// funkcija, ki skrbi za repaint platna in spreminjanje statusne vrstice
+    
+    // funkcija, ki skrbi za repaint platna in spreminjanje statusne vrstice
 	public void osveziGUI() {
 		if (Vodja.igra == null) {
 			status.setText("Igra ni v teku.");
