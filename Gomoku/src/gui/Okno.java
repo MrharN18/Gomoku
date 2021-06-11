@@ -32,25 +32,25 @@ import vodja.VrstaIgralca;
 @SuppressWarnings("serial")
 public class Okno extends JFrame implements ActionListener{
 	
-	// platno, na katerem je narisana igra
-	public Platno polje;
+    // platno, na katerem je narisana igra
+    public Platno polje;
 	
-	// statusna vrstica
-	private JLabel status;
+    // statusna vrstica
+    private JLabel status;
 	
-	// zgornji meniji in gumb za razveljavitev
-	private JMenuItem igraClovekRacunalnik, igraRacunalnikClovek, igraClovekClovek, igraRacunalnikRacunalnik;
-	private JMenuItem velikostPlosce;
-	private JButton razveljavi;
-	private final JMenuItem settings;
+    // zgornji meniji in gumb za razveljavitev
+    private JMenuItem igraClovekRacunalnik, igraRacunalnikClovek, igraClovekClovek, igraRacunalnikRacunalnik;
+    private JMenuItem velikostPlosce;
+    private JButton razveljavi;
+    private final JMenuItem settings;
 	
-	// pop-up meni za nastavitve
+    // pop-up meni za nastavitve
     private final JDialog s_pane;
 	
-	// gumb za shranjevanje nastavitev
+    // gumb za shranjevanje nastavitev
     private final JButton s_save;
     
-	// gumbi za spremembe barv, imen igralcev
+    // gumbi za spremembe barv, imen igralcev
     private final JButton s_p1_colour_button;
     private final JLabel BLabel;
     
@@ -72,20 +72,20 @@ public class Okno extends JFrame implements ActionListener{
     private final JButton zmagovalna_colour_button;
     private final JLabel zmagovalnaLabel;
 
-	// zavesica za algoritme belega in črnega igralca
+    // zavesica za algoritme belega in črnega igralca
     private final JComboBox<String> s_ai1_algo;
     private final JComboBox<String> s_ai2_algo;
 
 	
-	// gumba za globini algoritmov
-    final JSpinner s_minimax_depth;
-    final JSpinner s_negamax_depth;
-    final JSpinner s_mcts_time;
+    // gumbi za globini algoritmov in zamik poteze racunalnika
+    final JSpinner s_p1_depth;
+    final JSpinner s_p2_depth;
+    final JSpinner s_zamik_time;
     
-	// kjukica za časovni zamik poteze računalnika (da ne odigra takoj)
+    // kjukica za časovni zamik poteze računalnika (da ne odigra takoj)
     final JCheckBox omejitev_AI;
     
-	// barve
+    // barve
     private Color t_p1_colour;
     private Color t_p2_colour;
     private Color t_fg_colour;
@@ -93,7 +93,7 @@ public class Okno extends JFrame implements ActionListener{
     private Color t_accent_colour;
     private Color zmagovalna;
 
-	// velikost nove igre (rabimo samo ko prvič zaženemo, da nariše platno)
+    // velikost nove igre (rabimo samo ko prvič zaženemo, da nariše platno)
     public int velikost;
 	
 	public Okno(int N) {
@@ -106,21 +106,21 @@ public class Okno extends JFrame implements ActionListener{
 		JMenuBar menubar = new JMenuBar();
         setJMenuBar(menubar);
         
-		// glavna menija
+	// glavna menija
         JMenu menuigra = dodajMenu(menubar, "Nova igra");
         JMenu menunastavitve = dodajMenu(menubar, "Nastavitve");
         
-		// podmeniji igre
+	// podmeniji igre
         igraClovekRacunalnik = dodajMenuItem(menuigra, "Človek – računalnik");
         igraRacunalnikClovek = dodajMenuItem(menuigra, "Računalnik – človek");
         igraClovekClovek = dodajMenuItem(menuigra, "Človek – človek");
         igraRacunalnikRacunalnik = dodajMenuItem(menuigra, "Računalnik – računalnik");
         
-		// podmenija nastavitev
+	// podmenija nastavitev
         velikostPlosce = dodajMenuItem(menunastavitve, "Velikost plosce");
         settings = dodajMenuItem(menunastavitve,"Nastavitve");
         
-		// gumb "razveljavi zadnjo potezo"
+	// gumb "razveljavi zadnjo potezo"
         razveljavi = new JButton("Razveljavi");
         final GridBagConstraints undo_layout = new GridBagConstraints();
         undo_layout.gridx = 0;
@@ -129,7 +129,7 @@ public class Okno extends JFrame implements ActionListener{
         getContentPane().add(razveljavi, undo_layout);
         razveljavi.addActionListener(this);
         
-		// polje in postavitev polja v oknu
+	// polje in postavitev polja v oknu
         polje = new Platno(velikost);
         
         GridBagConstraints polje_layout = new GridBagConstraints();
@@ -327,22 +327,22 @@ public class Okno extends JFrame implements ActionListener{
 	    s_ai2_algo_layout.anchor = GridBagConstraints.CENTER;
 	    s_pane.add(s_ai2_algo, s_ai2_algo_layout);
 	
-		// globini algoritmov 1. in 2. igralca
-	    s_minimax_depth = new JSpinner(new SpinnerNumberModel(Vodja.globina_B, 1, 5, 1));
-	    final GridBagConstraints s_minimax_depth_layout = new GridBagConstraints();
-	    s_minimax_depth_layout.gridx = 2;
-	    s_minimax_depth_layout.gridy = 6;
-	    s_minimax_depth_layout.anchor = GridBagConstraints.CENTER;
-	    s_pane.add(s_minimax_depth, s_minimax_depth_layout);
+	    // globini algoritmov 1. in 2. igralca
+	    s_p1_depth = new JSpinner(new SpinnerNumberModel(Vodja.globina_B, 1, 5, 1));
+	    final GridBagConstraints s_p1_depth_layout = new GridBagConstraints();
+	    s_p1_depth_layout.gridx = 2;
+	    s_p1_depth_layout.gridy = 6;
+	    s_p1_depth_layout.anchor = GridBagConstraints.CENTER;
+	    s_pane.add(s_p1_depth, s_p1_depth_layout);
 	
-	    s_negamax_depth = new JSpinner(new SpinnerNumberModel(Vodja.globina_W, 1, 5, 1));
-	    final GridBagConstraints s_negamax_depth_layout = new GridBagConstraints();
-	    s_negamax_depth_layout.gridx = 2;
-	    s_negamax_depth_layout.gridy = 7;
-	    s_negamax_depth_layout.anchor = GridBagConstraints.CENTER;
-	    s_pane.add(s_negamax_depth, s_negamax_depth_layout);
+	    s_p2_depth = new JSpinner(new SpinnerNumberModel(Vodja.globina_W, 1, 5, 1));
+	    final GridBagConstraints s_p2_depth_layout = new GridBagConstraints();
+	    s_p2_depth_layout.gridx = 2;
+	    s_p2_depth_layout.gridy = 7;
+	    s_p2_depth_layout.anchor = GridBagConstraints.CENTER;
+	    s_pane.add(s_p2_depth, s_p2_depth_layout);
 	    
-		// časovni zamik za potezo AIja
+	    // časovni zamik za potezo AIja
 	    omejitev_AI = new JCheckBox();
 	    final GridBagConstraints omejitev_layout = new GridBagConstraints();
 	    omejitev_layout.gridx = 0;
@@ -358,12 +358,12 @@ public class Okno extends JFrame implements ActionListener{
 	    s_pane.add(zamik_AI, zamik_layout);
 	    
 	    
-	    s_mcts_time = new JSpinner(new SpinnerNumberModel(Vodja.mcts_time_ms, 1000, 10000, 1000));
-	    final GridBagConstraints s_mcts_time_layout = new GridBagConstraints();
-	    s_mcts_time_layout.gridx = 1;
-	    s_mcts_time_layout.gridy = 8;
-	    s_mcts_time_layout.anchor = GridBagConstraints.CENTER;
-	    s_pane.add(s_mcts_time, s_mcts_time_layout);
+	    s_zamik_time = new JSpinner(new SpinnerNumberModel(Vodja.zamik_ms, 1000, 10000, 1000));
+	    final GridBagConstraints s_zamik_time_layout = new GridBagConstraints();
+	    s_zamik_time_layout.gridx = 1;
+	    s_zamik_time_layout.gridy = 8;
+	    s_zamik_time_layout.anchor = GridBagConstraints.CENTER;
+	    s_pane.add(s_zamik_time, s_zamik_time_layout);
 	
 	    // gumb za shranjevanje
 	    s_save = new JButton("Shrani");
@@ -374,7 +374,7 @@ public class Okno extends JFrame implements ActionListener{
 	    s_pane.add(s_save, s_save_layout);
 	    s_save.addActionListener(this);
 	
-		// privzeta velikost platna
+	    // privzeta velikost platna
 	    s_pane.setSize(500, 400);
 	}   
 	
@@ -385,7 +385,7 @@ public class Okno extends JFrame implements ActionListener{
         return menu;
     }
 
-	// funkcija, ki doda podmeni meniju
+    // funkcija, ki doda podmeni meniju
     public JMenuItem dodajMenuItem(JMenu menu, String naslov) {
         JMenuItem menuitem = new JMenuItem(naslov);
         menu.add(menuitem);
@@ -394,7 +394,7 @@ public class Okno extends JFrame implements ActionListener{
     }
     
 	
-	// tukaj so dogodki, ki se zgodijo če uporabnik pritisne nek gumb oz. odpre meni, ...
+    // tukaj so dogodki, ki se zgodijo če uporabnik pritisne nek gumb oz. odpre meni, ...
     @Override
 	public void actionPerformed(ActionEvent e) {
 		
@@ -422,8 +422,7 @@ public class Okno extends JFrame implements ActionListener{
 			Vodja.igramoNovoIgro();
 			
 			
-			// velikost plošče
-			
+		// velikost plošče	
 		} else if (e.getSource() == velikostPlosce) {
 			String velikostPlosce = JOptionPane.showInputDialog(this, "Velikost plosce:");
             if (velikostPlosce != null && velikostPlosce.matches("\\d+") && Integer.parseInt(velikostPlosce) > 4 && Integer.parseInt(velikostPlosce) < 24) {
@@ -437,28 +436,27 @@ public class Okno extends JFrame implements ActionListener{
             }  
             
 			
-			// razveljavitev poteze
-			
+		// razveljavitev poteze	
 		} else if (e.getSource() == razveljavi) {
 			Vodja.undo();
 			polje.repaint();
 			
-			// pop-up meni nastavitev
+		// pop-up meni nastavitev
 		} else if (e.getSource() == settings) {
 			
-		// spremenljivke, ki v pop-up meni nastavitev dajo privzete vrednosti (oz. vrednosti, ki v danem trenutku veljajo
+	    // spremenljivke, ki v pop-up meni nastavitev dajo privzete vrednosti (oz. vrednosti, ki v danem trenutku veljajo
             s_p1_name.setText(Vodja.igralecName.get(Igralec.B));
             s_p2_name.setText(Vodja.igralecName.get(Igralec.W));
 
             s_ai1_algo.setSelectedItem(Vodja.aiAlgorithm.get(Igralec.B));
             s_ai2_algo.setSelectedItem(Vodja.aiAlgorithm.get(Igralec.W));
 
-            s_minimax_depth.setValue(Vodja.globina_B);
-            s_negamax_depth.setValue(Vodja.globina_W);
+            s_p1_depth.setValue(Vodja.globina_B);
+            s_p2_depth.setValue(Vodja.globina_W);
             
             s_pane.setVisible(true);
             
-		// pritisnemo gumb shrani, ki shrani vse nastavitve, ki smo jih spremenili
+	    // pritisnemo gumb shrani, ki shrani vse nastavitve, ki smo jih spremenili
 	    } else if (e.getSource() == s_save) {
 	        if (t_p1_colour != null) {
 	            polje.barvaB = t_p1_colour;
@@ -497,9 +495,9 @@ public class Okno extends JFrame implements ActionListener{
 	        }
 	
 	        // nastavi AI parametre, ki jih lahko spreminjamo med igro (globine algoritmov, razne barve, itd.)
-	        Vodja.globina_B = (int) s_minimax_depth.getValue();
-	        Vodja.globina_W = (int) s_negamax_depth.getValue();
-	        Vodja.mcts_time_ms = (int) s_mcts_time.getValue();
+	        Vodja.globina_B = (int) s_p1_depth.getValue();
+	        Vodja.globina_W = (int) s_p2_depth.getValue();
+	        Vodja.zamik_ms = (int) s_zamik_time.getValue();
 	        	
 	        if (omejitev_AI.isSelected()) {
 	        	Vodja.zamik = true;
@@ -554,7 +552,6 @@ public class Okno extends JFrame implements ActionListener{
 
 	
 	// funkcija, ki skrbi za repaint platna in spreminjanje statusne vrstice
-	
 	public void osveziGUI() {
 		if (Vodja.igra == null) {
 			status.setText("Igra ni v teku.");
