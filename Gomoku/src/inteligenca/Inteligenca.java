@@ -140,7 +140,7 @@ public class Inteligenca extends KdoIgra {
 		return null;
 	}
 	
-	// funkcija, ki poišče, ali lahko nasprotnih zmaga v naslednji potezi (in potem ustrezno zablokira to zmago)
+	// funkcija, ki poišče, ali lahko nasprotnik zmaga v naslednji potezi (in potem ustrezno zablokira to zmago)
 	public static Koordinati poisciPoraz(Igra igra) {
 		Igra kopijaIgre = new Igra(igra);
 		kopijaIgre.naPotezi = kopijaIgre.naPotezi.nasprotnik();
