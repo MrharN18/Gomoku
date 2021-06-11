@@ -154,7 +154,7 @@ public class Platno extends JPanel implements MouseListener{
 					    (int)(i * w + dy));
 		}	
 		
-		// pobarva zadnjo potezo
+		// narise odigrano potezo
 		Polje[][] plosca;;
 		if (Vodja.igra != null) {
 			plosca = Vodja.igra.getPlosca();
@@ -174,7 +174,7 @@ public class Platno extends JPanel implements MouseListener{
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		
-		// ob kliku na polje igramo potezo
+		// ob kliku na polje igramo potezo, ce je na vrsti clovek
 		if (Vodja.clovekNaVrsti) {
 			int x = e.getX();
 			int y = e.getY();
