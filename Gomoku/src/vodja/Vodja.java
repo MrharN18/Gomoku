@@ -21,9 +21,10 @@ public class Vodja {
 	// okno
 	public static Okno okno;
 	
-	// igra 
+	// igra, katere vrednost nastavimo na null
 	public static Igra igra = null;
 	
+	// spremenljivko uporabimo, da Swingu povemo kdaj naj uposteva pritiske na racunalniski miski
 	public static boolean clovekNaVrsti = false;
 	
 	// za vsakega igralca slovar imen igralcev
@@ -32,11 +33,11 @@ public class Vodja {
 	// za vsakega igralca algoritem (če je ta igralec računalnik)
 	public static EnumMap<Igralec, String> aiAlgorithm;
 	
-	// default globina, in zamik, takoj ko odpremo program
-	public static int globina_B = 3;
+	// default globina in zamik, takoj ko odpremo program
+	public static int globina_B = 3; // globina je dolocena za vsakega igralca posebej
     	public static int globina_W = 3;
-    	public static int mcts_time_ms = 1000;
-   	public static boolean zamik = false;
+    	public static int zamik_ms = 1000;
+   	public static boolean zamik = false; // ali bomo imeli zamik ali ne
 	
 	// default imena igralcev in algoritmov
 	static {
@@ -93,15 +94,15 @@ public class Vodja {
 					// v ozadju zažene izbrani algoritem izbrane globine, ki potem najde najboljšo potezo
 					Koordinati poteza = null;
 					switch (igra.naPotezi) {
-					case B: {poteza = racunalnikovaInteligenca.izberiPotezo(igra,aiAlgorithm.get(zacetkaIgra.naPotezi), globina_B, zamik, mcts_time_ms); break;}
-					case W: {poteza = racunalnikovaInteligenca.izberiPotezo(igra,aiAlgorithm.get(zacetkaIgra.naPotezi), globina_W, zamik, mcts_time_ms); break;}
-					}
-					try { if (zamik) {TimeUnit.SECONDS.sleep(mcts_time_ms / 1000);} else {TimeUnit.SECONDS.sleep(0);}} catch (Exception e) {};
+					case B: {poteza = racunalnikovaInteligenca.izberiPotezo(igra,aiAlgorithm.get(zacetkaIgra.naPotezi), globina_B); break;}
+					case W: {poteza = racunalnikovaInteligenca.izberiPotezo(igra,aiAlgorithm.get(zacetkaIgra.naPotezi), globina_W); break;}
+					} // ce imamo zamik, racunalnik pocaka preden odigra potezo
+					try { if (zamik) {TimeUnit.SECONDS.sleep(zamik_ms / 1000);} else {TimeUnit.SECONDS.sleep(0);}} catch (Exception e) {};
 					return poteza;
 				}
 				@Override
 				protected void done() {
-					// ko algoritem konča, potezo vrne, če ga ne prekemo vmes (s tipko razveljavi)
+					// ko algoritem konča, potezo vrne, če ga ne prekinemo vmes (s tipko razveljavi)
 					Koordinati poteza = null;
 					try {poteza = get();} catch (Exception e) {
 						e.printStackTrace();
@@ -122,10 +123,10 @@ public class Vodja {
 		igramo ();
 	}
 	
+	// metoda prekine delovanje swingworkerja in razveljavi zadnjo odigrano potezo
 	public static void undo() {
 	    if (worker != null) {
 	        worker.cancel(false);
-	        System.out.print(worker.isCancelled());
 	    }
 	    igra.razveljavi();
 	    igramo(); 
