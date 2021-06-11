@@ -31,7 +31,7 @@ public class OceniPozicijo {
 			}
 		}
 		if (count_B > 0 && count_W > 0) { return 0; }
-		return oceni1(count_B,count_W,jaz,zaporedoma);
+		return oceni(count_B,count_W,jaz); // uporabimo metodo oceni, ki se je iskazala za najboljso
 	}
 	
 	// funkcije oceni, oceni1 in oceni2 so različne vrste ocenjevanja vrst (poskusi za tekmovanje)
@@ -69,7 +69,7 @@ public class OceniPozicijo {
 		return score;
 	}
 	
-	
+	// funkcija oceni1 uposteva ali so zetoni v vrsti skupaj ali narazen
 	public static int oceni1(int count_B, int count_W, Igralec jaz, boolean zaporedoma) {
 		int score = 0;
 		double a = 2.5;
